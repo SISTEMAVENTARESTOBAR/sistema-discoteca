@@ -1,0 +1,16 @@
+{
+  "name": "sistema-discoteca",
+  "version": "1.0.0",
+  "description": "Sistema de ventas para restobar - Sistema Discoteca",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["pos", "ventas", "restobar"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}

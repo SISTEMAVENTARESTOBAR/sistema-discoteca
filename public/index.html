@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema Discoteca — Sistema de Ventas</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ==================== LOGIN ==================== -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-icon">🌙</div>
+      <h1>Sistema Discoteca</h1>
+      <p>Sistema de Ventas</p>
+    </div>
+    <div class="form-group">
+      <label>Usuario</label>
+      <input type="text" id="login-user" placeholder="tu_usuario" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" placeholder="••••••••">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">Ingresar al sistema</button>
+    <div class="login-error" id="login-error">Usuario o contraseña incorrectos</div>
+    <div style="margin-top:20px;padding:12px;background:var(--bg2);border-radius:10px;font-size:12px;color:var(--text3);">
+      <strong style="color:var(--text2);display:block;margin-bottom:6px;">Usuarios de prueba:</strong>
+      admin / admin123 — Administrador<br>
+      carlos / 1234 — Garzón<br>
+      juan / 1234 — Bartender<br>
+      maria / 1234 — Cajero<br>
+      roberto / 1234 — Cocinero
+    </div>
+  </div>
+</div>
+
+<!-- ==================== APP ==================== -->
+<div id="app" style="display:flex;">
+
+  <!-- MOBILE TOPBAR -->
+  <div class="topbar" id="topbar">
+    <div class="topbar-logo">
+      <button onclick="openDrawer()" style="background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--text);font-size:20px;line-height:1;">☰</button>
+      <div class="logo-mini">🌙</div>
+      <span>Sistema Discoteca</span>
+    </div>
+    <div class="topbar-right">
+      <button onclick="toggleTheme()" style="background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--text2);font-size:18px;" id="topbar-theme-btn">☀️</button>
+      <div class="topbar-user" id="topbar-avatar">A</div>
+    </div>
+  </div>
+
+  <!-- MOBILE DRAWER OVERLAY -->
+  <div class="mobile-drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+
+  <!-- MOBILE DRAWER -->
+  <div class="mobile-drawer" id="mobile-drawer">
+    <div class="drawer-header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="logo-mini" style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:14px;">🌙</div>
+        <span style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;">Sistema Discoteca</span>
+      </div>
+      <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:10px;background:var(--bg2);border-radius:10px;padding:10px 12px;">
+        <div class="user-avatar" id="drawer-avatar" style="background:linear-gradient(135deg,var(--accent),var(--accent2));width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;">A</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;" id="drawer-name">Usuario</div>
+          <div style="font-size:11px;color:var(--text2);" id="drawer-role">Rol</div>
+        </div>
+      </div>
+    </div>
+    <nav class="drawer-nav" id="drawer-nav"></nav>
+    <div class="drawer-bottom">
+      <div class="theme-toggle" onclick="toggleTheme();closeDrawer();">
+        <span id="drawer-theme-icon">☀️</span>
+        <span id="drawer-theme-label">Modo claro</span>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">🚪 Cerrar sesión</button>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV (mobile) -->
+  <div class="bottom-nav" id="bottom-nav"></div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-row">
+        <div class="logo-mini">🌙</div>
+        <h2>Sistema Discoteca</h2>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-badge">
+        <div class="user-avatar" id="sb-avatar" style="background:linear-gradient(135deg,var(--accent),var(--accent2))">A</div>
+        <div class="user-info">
+          <div class="name" id="sb-name">Admin</div>
+          <div class="role" id="sb-role">Administrador</div>
+        </div>
+      </div>
+    </div>
+    <nav id="sidebar-nav"></nav>
+    <div class="sidebar-bottom">
+      <div class="theme-toggle" onclick="toggleTheme()">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-label">Modo claro</span>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">🚪 Cerrar sesión</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <!-- ===== PÁGINA: DASHBOARD ADMIN ===== -->
+    <div class="page" id="page-dashboard">
+      <div class="page-header">
+        <h2>Dashboard</h2>
+        <p id="dash-fecha">Cargando fecha...</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card purple">
+          <div class="stat-icon">💰</div>
+          <div class="stat-value" id="stat-total">Bs. 0</div>
+          <div class="stat-label">Total ventas hoy</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">💵</div>
+          <div class="stat-value" id="stat-efectivo">Bs. 0</div>
+          <div class="stat-label">Efectivo cobrado</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-icon">📱</div>
+          <div class="stat-value" id="stat-qr">Bs. 0</div>
+          <div class="stat-label">QR cobrado</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-value" id="stat-alertas">0</div>
+          <div class="stat-label">Alertas activas</div>
+        </div>
+      </div>
+
+      <!-- ALERTAS -->
+      <div id="alertas-container" style="margin-bottom:24px;"></div>
+
+      <div class="grid-2">
+        <!-- PRODUCTOS MAS VENDIDOS -->
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h3 style="font-size:16px;">📊 Más vendidos hoy</h3>
+          </div>
+          <div id="top-productos"></div>
+        </div>
+        <!-- ULTIMAS VENTAS -->
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h3 style="font-size:16px;">🧾 Últimas ventas</h3>
+            <button class="btn btn-outline btn-sm" onclick="showPage('page-ventas')">Ver todas</button>
+          </div>
+          <div id="ultimas-ventas"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PÁGINA: VENTAS ADMIN ===== -->
+    <div class="page" id="page-ventas">
+      <div class="page-header">
+        <h2>Registro de Ventas</h2>
+        <p>Historial completo con trazabilidad</p>
+      </div>
+
+      <!-- STATS FILTRADAS -->
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat-card green">
+          <div class="stat-icon">💰</div>
+          <div class="stat-value" id="v-total">Bs. 0</div>
+          <div class="stat-label">Total filtrado</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">💵</div>
+          <div class="stat-value" id="v-efectivo">Bs. 0</div>
+          <div class="stat-label">Efectivo</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-icon">📱</div>
+          <div class="stat-value" id="v-qr">Bs. 0</div>
+          <div class="stat-label">QR</div>
+        </div>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="filters-bar">
+        <div class="filter-group">
+          <label>Fecha</label>
+          <select id="f-fecha" onchange="aplicarFiltros()">
+            <option value="hoy">Hoy</option>
+            <option value="semana">Esta semana</option>
+            <option value="todo">Todo</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Garzón</label>
+          <select id="f-garzon" onchange="aplicarFiltros()">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Método de pago</label>
+          <select id="f-metodo" onchange="aplicarFiltros()">
+            <option value="">Todos</option>
+            <option value="efectivo">Efectivo</option>
+            <option value="qr">QR</option>
+            <option value="mixto">Mixto</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Estado</label>
+          <select id="f-estado" onchange="aplicarFiltros()">
+            <option value="">Todos</option>
+            <option value="cobrado">Cobrado</option>
+            <option value="anulado">Anulado</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Buscar</label>
+          <input type="text" id="f-buscar" placeholder="# venta o mesa..." oninput="aplicarFiltros()">
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="limpiarFiltros()">🔄 Limpiar</button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table id="tabla-ventas">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Fecha / Hora</th>
+                <th class="hide-mobile">Garzón</th>
+                <th>Mesa</th>
+                <th>Total</th>
+                <th>Método</th>
+                <th class="hide-mobile">Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="ventas-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PÁGINA: ANULACIONES ===== -->
+    <div class="page" id="page-anulaciones">
+      <div class="page-header">
+        <h2>Anulaciones</h2>
+        <p>Registro de todos los pedidos anulados</p>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Fecha / Hora</th>
+                <th>Garzón</th>
+                <th>Mesa</th>
+                <th>Monto</th>
+                <th>Motivo</th>
+              </tr>
+            </thead>
+            <tbody id="anulaciones-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PÁGINA: LOG DE ACCIONES ===== -->
+    <div class="page" id="page-log">
+      <div class="page-header">
+        <h2>Log de Acciones</h2>
+        <p>Registro de cada acción realizada en el sistema</p>
+      </div>
+      <div class="card">
+        <div id="log-list"></div>
+      </div>
+    </div>
+
+    <!-- ===== PÁGINA: CIERRE DE CAJA ===== -->
+    <div class="page" id="page-cierre">
+      <div class="page-header">
+        <h2>Cierre de Caja</h2>
+        <p>Historial de cierres diarios</p>
+      </div>
+      <div id="cierre-historial"></div>
+    </div>
+
+    <!-- ===== PÁGINA: USUARIOS ===== -->
+    <div class="page" id="page-usuarios">
+      <div class="page-header">
+        <h2>Gestión de Usuarios</h2>
+        <p>Administra el acceso de tu personal</p>
+      </div>
+      <div style="margin-bottom:16px;">
+        <button class="btn btn-primary" style="width:auto;" onclick="openModal('modal-nuevo-usuario')">+ Nuevo usuario</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="usuarios-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PÁGINA: MENÚ ===== -->
+    <div class="page" id="page-menu">
+      <div class="page-header">
+        <h2>Gestión del Menú</h2>
+        <p>Administra tus productos y precios</p>
+      </div>
+      <div style="margin-bottom:16px;">
+        <button class="btn btn-primary" style="width:auto;" onclick="openModal('modal-nuevo-producto')">+ Nuevo producto</button>
+      </div>
+      <div class="tabs" id="menu-tabs"></div>
+      <div id="menu-productos-grid" class="grid-3"></div>
+    </div>
+
+    <!-- ===== PÁGINA: MESAS (GARZÓN) ===== -->
+    <div class="page" id="page-mesas-garzon">
+      <div class="page-header">
+        <h2>Mis Mesas</h2>
+        <p id="garzon-info-header"></p>
+      </div>
+      <div class="alert alert-warning" id="alert-anulaciones-garzon" style="display:none;">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-text">
+          <strong>Anulaciones de hoy</strong>
+          <span id="anulaciones-msg"></span>
+        </div>
+      </div>
+      <div class="mesas-grid" id="mesas-garzon-grid"></div>
+      <div style="margin-top:16px;">
+        <h3 style="font-size:15px;margin-bottom:12px;">📋 Mis pedidos activos</h3>
+        <div id="pedidos-activos-garzon"></div>
+      </div>
+    </div>
+
+    <!-- ===== PÁGINA: BAR ===== -->
+    <div class="page" id="page-bar">
+      <div class="page-header">
+        <h2>Panel del Bar</h2>
+        <p>Pedidos de bebidas listos para preparar</p>
+      </div>
+      <div id="bar-pedidos"></div>
+    </div>
+
+    <!-- ===== PÁGINA: COCINA ===== -->
+    <div class="page" id="page-cocina">
+      <div class="page-header">
+        <h2>Panel de Cocina</h2>
+        <p>Pedidos de comida listos para preparar</p>
+      </div>
+      <div id="cocina-pedidos"></div>
+    </div>
+
+    <!-- ===== PÁGINA: CAJA ===== -->
+    <div class="page" id="page-caja">
+      <div class="page-header">
+        <h2>Panel de Caja</h2>
+        <p>Cobros pendientes de confirmación</p>
+      </div>
+      <div id="caja-cobros"></div>
+      <div class="divider"></div>
+      <h3 style="font-size:15px;margin-bottom:12px;">🔒 Cierre de Caja</h3>
+      <div class="card" id="cierre-form-card">
+        <div class="cierre-summary" id="cierre-summary-data"></div>
+        <div class="form-group">
+          <label>Observaciones</label>
+          <textarea id="cierre-obs" rows="3" placeholder="Notas del cierre..."></textarea>
+        </div>
+        <button class="btn btn-primary" style="width:auto;" onclick="confirmarCierre()">✅ Confirmar cierre de caja</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== MODALES ==================== -->
+
+<!-- MODAL: PEDIDO -->
+<div class="modal-overlay" id="modal-pedido">
+  <div class="modal" style="max-width:540px;">
+    <div class="modal-header">
+      <h3 id="modal-pedido-title">Nuevo Pedido — Mesa 1</h3>
+      <button class="modal-close" onclick="closeModal('modal-pedido')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- CATEGORÍAS -->
+      <div class="cat-pills" id="cat-pills"></div>
+      <!-- PRODUCTOS -->
+      <div class="product-grid" id="product-grid"></div>
+      <div class="divider"></div>
+      <!-- CARRITO -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <strong style="font-size:13px;">🛒 Pedido</strong>
+        <span id="cart-count" style="font-size:12px;color:var(--text3);">0 items</span>
+      </div>
+      <div class="cart-items" id="cart-items">
+        <div class="empty-state" style="padding:20px;">
+          <div class="empty-icon">🛒</div>
+          <p>Agrega productos al pedido</p>
+        </div>
+      </div>
+      <div class="cart-total">
+        <span>Total a cobrar</span>
+        <strong id="cart-total-val">Bs. 0</strong>
+      </div>
+      <!-- NOTA -->
+      <div class="form-group">
+        <label>📝 Nota del pedido (opcional)</label>
+        <input type="text" id="pedido-nota" placeholder="sin hielo, con vaso extra, sin cebolla...">
+      </div>
+      <!-- MÉTODO DE PAGO -->
+      <div class="form-group">
+        <label>💳 Método de pago</label>
+        <div class="payment-methods">
+          <div class="pay-method" id="pay-efectivo" onclick="selectPayMethod('efectivo')">
+            <div class="pay-icon">💵</div>
+            <div class="pay-label">Efectivo</div>
+          </div>
+          <div class="pay-method" id="pay-qr" onclick="selectPayMethod('qr')">
+            <div class="pay-icon">📱</div>
+            <div class="pay-label">QR</div>
+          </div>
+          <div class="pay-method" id="pay-mixto" onclick="selectPayMethod('mixto')">
+            <div class="pay-icon">💵📱</div>
+            <div class="pay-label">Mixto</div>
+          </div>
+        </div>
+      </div>
+      <!-- PAGO EFECTIVO -->
+      <div id="pago-efectivo-fields" style="display:none;">
+        <div class="form-group">
+          <label>Monto recibido (Bs.)</label>
+          <input type="number" id="monto-recibido" placeholder="0" oninput="calcCambio()">
+        </div>
+        <div style="padding:10px 14px;background:var(--bg2);border-radius:10px;font-size:13px;display:flex;justify-content:space-between;">
+          <span style="color:var(--text2);">Cambio a devolver:</span>
+          <strong id="cambio-display" style="color:var(--green);">Bs. 0</strong>
+        </div>
+      </div>
+      <!-- PAGO QR -->
+      <div id="pago-qr-fields" style="display:none;">
+        <div class="upload-area" id="qr-upload-area" onclick="document.getElementById('qr-file').click()">
+          <div class="upload-icon">📎</div>
+          <div class="upload-text"><strong>Subir comprobante QR</strong><br>Obligatorio para confirmar el cobro</div>
+          <input type="file" id="qr-file" accept="image/*" style="display:none;" onchange="handleQRUpload(this)">
+        </div>
+        <div id="qr-preview" style="display:none;margin-top:10px;text-align:center;">
+          <img id="qr-preview-img" style="max-height:120px;border-radius:8px;border:1px solid var(--border);">
+          <p style="font-size:12px;color:var(--green);margin-top:6px;">✅ Comprobante subido</p>
+        </div>
+      </div>
+      <!-- PAGO MIXTO -->
+      <div id="pago-mixto-fields" style="display:none;">
+        <div class="grid-2" style="margin-bottom:10px;">
+          <div class="form-group">
+            <label>💵 Efectivo (Bs.)</label>
+            <input type="number" id="mixto-efectivo" placeholder="0" oninput="calcMixto()">
+          </div>
+          <div class="form-group">
+            <label>📱 QR (Bs.)</label>
+            <input type="number" id="mixto-qr" placeholder="0" oninput="calcMixto()">
+          </div>
+        </div>
+        <div id="mixto-validacion" style="padding:10px 14px;background:var(--bg2);border-radius:10px;font-size:13px;display:flex;justify-content:space-between;margin-bottom:10px;">
+          <span style="color:var(--text2);">Total ingresado:</span>
+          <strong id="mixto-total-display">Bs. 0</strong>
+        </div>
+        <div class="upload-area" id="mixto-upload-area" onclick="document.getElementById('mixto-file').click()">
+          <div class="upload-icon">📎</div>
+          <div class="upload-text"><strong>Comprobante QR</strong><br>Obligatorio</div>
+          <input type="file" id="mixto-file" accept="image/*" style="display:none;" onchange="handleMixtoUpload(this)">
+        </div>
+        <div id="mixto-preview" style="display:none;margin-top:10px;text-align:center;">
+          <img id="mixto-preview-img" style="max-height:100px;border-radius:8px;border:1px solid var(--border);">
+          <p style="font-size:12px;color:var(--green);margin-top:4px;">✅ Comprobante subido</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-pedido')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-confirmar-pedido" onclick="confirmarPedido()" style="width:auto;" disabled>✅ Confirmar pedido y cobro</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ANULAR PEDIDO -->
+<div class="modal-overlay" id="modal-anular">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <h3>⚠️ Anular Pedido</h3>
+      <button class="modal-close" onclick="closeModal('modal-anular')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="anulacion-counter" id="anulacion-counter-msg"></div>
+      <div class="form-group">
+        <label>Motivo de anulación (obligatorio)</label>
+        <textarea id="motivo-anulacion" rows="3" placeholder="Explica por qué se anula este pedido..."></textarea>
+      </div>
+      <p style="font-size:12px;color:var(--text3);">Esta acción quedará registrada con tu nombre y la hora exacta.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-anular')">Cancelar</button>
+      <button class="btn btn-danger" onclick="ejecutarAnulacion()">🗑️ Anular pedido</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: DETALLE VENTA -->
+<div class="modal-overlay" id="modal-venta-detalle">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <h3 id="modal-detalle-title">Venta #0001</h3>
+      <button class="modal-close" onclick="closeModal('modal-venta-detalle')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-detalle-body"></div>
+  </div>
+</div>
+
+<!-- MODAL: NUEVO USUARIO -->
+<div class="modal-overlay" id="modal-nuevo-usuario">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <h3>➕ Nuevo Usuario</h3>
+      <button class="modal-close" onclick="closeModal('modal-nuevo-usuario')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nombre completo</label>
+        <input type="text" id="nu-nombre" placeholder="Nombre Apellido">
+      </div>
+      <div class="form-group">
+        <label>Usuario</label>
+        <input type="text" id="nu-usuario" placeholder="nombre_g">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="nu-pass" placeholder="••••••••">
+      </div>
+      <div class="form-group">
+        <label>Rol</label>
+        <select id="nu-rol">
+          <option value="garzon">Garzón</option>
+          <option value="bartender">Bartender</option>
+          <option value="cajero">Cajero</option>
+          <option value="cocinero">Cocinero</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-nuevo-usuario')">Cancelar</button>
+      <button class="btn btn-primary" style="width:auto;" onclick="crearUsuario()">Crear usuario</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: NUEVO PRODUCTO -->
+<div class="modal-overlay" id="modal-nuevo-producto">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <h3>➕ Nuevo Producto</h3>
+      <button class="modal-close" onclick="closeModal('modal-nuevo-producto')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" id="np-nombre" placeholder="Ej: Paceña botella">
+      </div>
+      <div class="form-group">
+        <label>Precio (Bs.)</label>
+        <input type="number" id="np-precio" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Categoría</label>
+        <select id="np-categoria">
+          <option value="Cervezas">Cervezas</option>
+          <option value="Bebidas">Bebidas</option>
+          <option value="Tragos">Tragos</option>
+          <option value="Comida">Comida</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-nuevo-producto')">Cancelar</button>
+      <button class="btn btn-primary" style="width:auto;" onclick="crearProducto()">Agregar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CONFIRMAR CAJA -->
+<div class="modal-overlay" id="modal-confirmar-caja">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <h3 id="modal-caja-title">💰 Confirmar Cobro</h3>
+      <button class="modal-close" onclick="closeModal('modal-confirmar-caja')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-caja-body"></div>
+  </div>
+</div>
+
+<!-- ==================== SCRIPTS ==================== -->
+<script defer src="js/utils.js"></script>
+<script defer src="js/database.js"></script>
+<script defer src="js/notifications.js"></script>
+<script defer src="js/auth.js"></script>
+<script defer src="js/dashboard.js"></script>
+<script defer src="js/ventas.js"></script>
+<script defer src="js/mesas.js"></script>
+<script defer src="js/pedidos.js"></script>
+<script defer src="js/caja.js"></script>
+<script defer src="js/bar.js"></script>
+<script defer src="js/cocina.js"></script>
+<script defer src="js/usuarios.js"></script>
+<script defer src="js/menu.js"></script>
+<script defer src="js/navigation.js"></script>
+<script defer src="js/app.js"></script>
+</body>
+</html>
