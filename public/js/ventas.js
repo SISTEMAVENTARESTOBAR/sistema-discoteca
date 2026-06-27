@@ -22,7 +22,14 @@ function poblarFiltroGarzon() {
 }
 
 function aplicarFiltros() {
-  let ventas = [...DB.ventas];
+  let ventas = DB.pedidos
+    .filter(p => ['caja_confirmada', 'listo', 'entregado'].includes(p.estado))
+    .map(p => ({
+      ...p,
+      mesa: p.mesaNum,
+      hora: p.horaCreacion,
+      estado: 'cobrado'
+    }));
   const hoy = getTodayStr();
   const fecha = document.getElementById('f-fecha').value;
   if (fecha === 'hoy') ventas = ventas.filter(v => v.fecha === hoy);
@@ -68,8 +75,9 @@ function limpiarFiltros() {
 }
 
 function verDetalleVenta(id) {
-  const v = DB.ventas.find(x => x.id === id);
-  if (!v) return;
+  const p = DB.pedidos.find(x => x.id === id);
+  if (!p) return;
+  const v = { ...p, mesa: p.mesaNum, hora: p.horaCreacion, estado: 'cobrado' };
   document.getElementById('modal-detalle-title').textContent = `Venta #${String(v.id).padStart(4, '0')}`;
   document.getElementById('modal-detalle-body').innerHTML = `
     <div style="margin-bottom:16px;">
