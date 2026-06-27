@@ -17,7 +17,7 @@ function renderCaja() {
       return `<div class="card" style="margin-bottom:12px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <div>
-            <strong style="font-size:15px;">🔔 Mesa ${p.mesaNum}</strong>
+            <strong style="font-size:15px;">🔔 Mesa ${p.mesaNum} ${p.clienteNombre ? `<span style="color:var(--accent);font-size:14px;margin-left:4px;">👤 ${p.clienteNombre}</span>` : ''}</strong>
             <span style="font-size:12px;color:var(--text3);margin-left:8px;">${p.garzonNombre}</span>
           </div>
           <span class="badge badge-pending">Pendiente</span>
@@ -194,7 +194,7 @@ function renderCajaHistorial() {
   container.innerHTML = confirmados.reverse().map(p => {
     return `<div class="card" style="margin-bottom:12px; opacity:0.8;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <strong>Mesa ${p.mesaNum} — ${p.garzonNombre}</strong>
+        <strong>Mesa ${p.mesaNum} ${p.clienteNombre ? `<span style="color:var(--accent);font-size:13px;margin-left:4px;">👤 ${p.clienteNombre}</span>` : ''} — ${p.garzonNombre}</strong>
         <span style="font-size:12px;color:var(--text2);">${p.fecha} ${p.horaCaja}</span>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">

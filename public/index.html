@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema Discoteca — Sistema de Ventas</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=8">
+<link rel="stylesheet" href="css/styles.css?v=9">
 </head>
 <body>
 
@@ -467,6 +467,11 @@
         <span>Total a cobrar</span>
         <strong id="cart-total-val">Bs. 0</strong>
       </div>
+      <!-- NOMBRE DEL CLIENTE -->
+      <div class="form-group">
+        <label>👤 Nombre del cliente (opcional)</label>
+        <input type="text" id="pedido-cliente" placeholder="Ej. Carlos, Mesa del fondo...">
+      </div>
       <!-- NOTA -->
       <div class="form-group">
         <label>📝 Nota del pedido (opcional)</label>
@@ -664,21 +669,21 @@
 <!-- ==================== SCRIPTS ==================== -->
 <script defer src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database-compat.js"></script>
-<script defer src="js/utils.js?v=8"></script>
-<script defer src="js/database.js?v=8"></script>
-<script defer src="js/notifications.js?v=8"></script>
-<script defer src="js/auth.js?v=8"></script>
-<script defer src="js/dashboard.js?v=8"></script>
-<script defer src="js/ventas.js?v=8"></script>
-<script defer src="js/mesas.js?v=8"></script>
-<script defer src="js/pedidos.js?v=8"></script>
-<script defer src="js/caja.js?v=8"></script>
-<script defer src="js/bar.js?v=8"></script>
-<script defer src="js/cocina.js?v=8"></script>
-<script defer src="js/usuarios.js?v=8"></script>
-<script defer src="js/menu.js?v=8"></script>
-<script defer src="js/navigation.js?v=8"></script>
-<script defer src="js/app.js?v=8"></script>
+<script defer src="js/utils.js?v=9"></script>
+<script defer src="js/database.js?v=9"></script>
+<script defer src="js/notifications.js?v=9"></script>
+<script defer src="js/auth.js?v=9"></script>
+<script defer src="js/dashboard.js?v=9"></script>
+<script defer src="js/ventas.js?v=9"></script>
+<script defer src="js/mesas.js?v=9"></script>
+<script defer src="js/pedidos.js?v=9"></script>
+<script defer src="js/caja.js?v=9"></script>
+<script defer src="js/bar.js?v=9"></script>
+<script defer src="js/cocina.js?v=9"></script>
+<script defer src="js/usuarios.js?v=9"></script>
+<script defer src="js/menu.js?v=9"></script>
+<script defer src="js/navigation.js?v=9"></script>
+<script defer src="js/app.js?v=9"></script>
 
 <!-- TOAST CONTAINER -->
 <div id="toast-container" class="toast-container"></div>

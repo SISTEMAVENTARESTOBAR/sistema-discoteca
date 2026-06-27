@@ -18,6 +18,7 @@ function openPedidoModal(mesaId) {
   qrFileData = null;
   mixtoFileData = null;
   document.getElementById('modal-pedido-title').textContent = `Pedido — Mesa ${selectedMesa.numero}`;
+  document.getElementById('pedido-cliente').value = '';
   document.getElementById('pedido-nota').value = '';
   document.getElementById('monto-recibido').value = '';
   document.getElementById('mixto-efectivo').value = '';
@@ -179,6 +180,7 @@ function updateConfirmBtn() {
 function confirmarPedido() {
   if (!selectedMesa || cart.length === 0 || !selectedPayMethod) return;
   const total = cart.reduce((s, c) => s + c.qty * c.precio, 0);
+  const clienteNombre = document.getElementById('pedido-cliente').value.trim();
   const nota = document.getElementById('pedido-nota').value.trim();
   const hoy = getTodayStr();
   const hora = getTimeStr();
@@ -206,6 +208,7 @@ function confirmarPedido() {
     mesaNum: selectedMesa.numero,
     garzonId: currentUser.id,
     garzonNombre: currentUser.nombre,
+    clienteNombre,
     productos: [...cart],
     nota,
     total,
@@ -220,16 +223,8 @@ function confirmarPedido() {
   
   if (typeof db !== 'undefined') {
     db.ref('pedidos/' + pedidoId).set(pedido);
-    db.ref('mesas/' + selectedMesa.id).update({
-      estado: 'esperando',
-      garzonId: currentUser.id,
-      pedidoId: pedidoId
-    });
   } else {
     DB.pedidos.push(pedido);
-    selectedMesa.estado = 'esperando';
-    selectedMesa.garzonId = currentUser.id;
-    selectedMesa.pedidoId = pedidoId;
   }
 
   // Notificar a la cajera
@@ -272,13 +267,9 @@ function ejecutarAnulacion() {
   
   if (typeof db !== 'undefined') {
     db.ref('pedidos/' + pedido.id).update({ estado: 'anulado' });
-    if (mesa) {
-      db.ref('mesas/' + mesa.id).update({ estado: 'libre', garzonId: null, pedidoId: null });
-    }
     db.ref('anulaciones/' + anulacionId).set(anulacion);
   } else {
     pedido.estado = 'anulado';
-    if (mesa) { mesa.estado = 'libre'; mesa.garzonId = null; mesa.pedidoId = null; }
     DB.anulaciones.push(anulacion);
   }
   
@@ -302,6 +293,7 @@ function marcarEntregadoMesa(pedidoId) {
     fecha: pedido.fecha,
     hora: pedido.horaCreacion,
     horaCierre: getTimeStr(),
+    clienteNombre: pedido.clienteNombre || null,
     productos: pedido.productos,
     nota: pedido.nota,
     total: pedido.total,
@@ -322,23 +314,16 @@ function marcarEntregadoMesa(pedidoId) {
   
   if (typeof db !== 'undefined') {
     db.ref('pedidos/' + pedido.id).update({ estado: 'entregado' });
-    if (mesa) db.ref('mesas/' + mesa.id).update({ estado: 'entregado' });
     db.ref('ventas/' + ventaId).set(venta);
   } else {
     pedido.estado = 'entregado';
-    if (mesa) mesa.estado = 'entregado';
     DB.ventas.push(venta);
   }
 
-  // Liberar mesa después de un momento
+  // Notificar al sistema para re-renderizar
   setTimeout(() => {
-    if (typeof db !== 'undefined') {
-      if (mesa) db.ref('mesas/' + mesa.id).update({ estado: 'libre', garzonId: null, pedidoId: null });
-    } else {
-      if (mesa) { mesa.estado = 'libre'; mesa.garzonId = null; mesa.pedidoId = null; }
-      renderMesasGarzon();
-    }
-  }, 3000);
+    renderMesasGarzon();
+  }, 500);
 
   addLog(`Entregó pedido a Mesa ${pedido.mesaNum} — venta #${String(venta.id).padStart(4, '0')} registrada`);
   renderMesasGarzon();

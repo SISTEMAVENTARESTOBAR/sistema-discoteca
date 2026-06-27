@@ -17,7 +17,7 @@ function renderCocina() {
     });
     return `<div class="card" style="margin-bottom:12px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <strong>Mesa ${p.mesaNum} — ${p.garzonNombre}</strong>
+        <strong>Mesa ${p.mesaNum} ${p.clienteNombre ? `<span style="color:var(--accent);font-size:13px;margin-left:4px;">👤 ${p.clienteNombre}</span>` : ''} — ${p.garzonNombre}</strong>
         <span style="font-size:12px;color:var(--green);">✅ Pago confirmado</span>
       </div>
       <div style="margin-bottom:12px;">${comidas.map(c => `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;">${c.qty}x ${c.nombre}</div>`).join('')}</div>
@@ -66,7 +66,7 @@ function renderCocinaHistorial() {
     });
     return `<div class="card" style="margin-bottom:12px; opacity:0.8;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <strong>Mesa ${p.mesaNum} — ${p.garzonNombre}</strong>
+        <strong>Mesa ${p.mesaNum} ${p.clienteNombre ? `<span style="color:var(--accent);font-size:13px;margin-left:4px;">👤 ${p.clienteNombre}</span>` : ''} — ${p.garzonNombre}</strong>
         <span style="font-size:12px;color:var(--text2);">${p.fecha} ${p.horacocina}</span>
       </div>
       <div style="margin-bottom:12px;">${comidas.map(c => `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;">${c.qty}x ${c.nombre}</div>`).join('')}</div>

@@ -20,14 +20,23 @@ function renderMesasGarzon() {
 
   const grid = document.getElementById('mesas-garzon-grid');
   grid.innerHTML = DB.mesas.map(m => {
-    const pedido = DB.pedidos.find(p => p.mesaId === m.id && !['cobrado', 'anulado'].includes(p.estado));
-    const esMia = m.garzonId === currentUser.id || !m.garzonId;
-    const estadoLabel = { libre: 'Libre', esperando: 'Esperando caja', preparando: 'En preparación', listo: '¡Listo para retirar!', entregado: 'Entregado' }[m.estado] || m.estado;
-    return `<div class="mesa-card ${m.estado}" onclick="clickMesa(${m.id})">
+    const pedidosMesa = DB.pedidos.filter(p => p.mesaId === m.id && !['cobrado', 'anulado', 'entregado'].includes(p.estado));
+    let estadoVirtual = 'libre';
+    if (pedidosMesa.length > 0) {
+      if (pedidosMesa.some(p => p.estado === 'listo')) estadoVirtual = 'listo';
+      else if (pedidosMesa.some(p => p.estado === 'caja_confirmada')) estadoVirtual = 'preparando';
+      else estadoVirtual = 'esperando';
+    }
+    const estadoLabel = { libre: 'Libre', esperando: 'Esperando caja', preparando: 'En preparación', listo: '¡Listo para retirar!' }[estadoVirtual] || estadoVirtual;
+    
+    // Si hay garzones involucrados en los pedidos activos
+    const garzonesActivos = [...new Set(pedidosMesa.map(p => p.garzonNombre))].join(', ');
+    
+    return `<div class="mesa-card ${estadoVirtual}" onclick="clickMesa(${m.id})">
       <div class="mesa-dot"></div>
       <div class="mesa-num">${m.numero}</div>
       <div class="mesa-status">${estadoLabel}</div>
-      ${m.garzonId && m.garzonId !== currentUser.id ? `<div class="mesa-garzon">${(DB.usuarios.find(u => u.id === m.garzonId) || {}).nombre || ''}</div>` : ''}
+      ${garzonesActivos ? `<div class="mesa-garzon">${garzonesActivos}</div>` : ''}
     </div>`;
   }).join('');
 
@@ -44,7 +53,7 @@ function renderMesasGarzon() {
       const puedeAnular = anulacionesHoy2 < 3 && p.estado === 'pendiente';
       return `<div class="card card-sm" style="margin-bottom:10px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <strong style="font-size:14px;">Mesa ${p.mesaNum}</strong>
+          <strong style="font-size:14px;">Mesa ${p.mesaNum} ${p.clienteNombre ? `<span style="color:var(--accent);font-size:13px;margin-left:4px;">👤 ${p.clienteNombre}</span>` : ''}</strong>
           <span style="font-size:12px;color:var(--text2);">${estadoLabel}</span>
         </div>
         <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">${p.productos.map(x => `${x.qty}x ${x.nombre}`).join(', ')}</div>
@@ -62,13 +71,7 @@ function renderMesasGarzon() {
 }
 
 function clickMesa(mesaId) {
-  const mesa = DB.mesas.find(m => m.id === mesaId);
-  if (!mesa) return;
-  if (mesa.estado === 'libre') {
-    openPedidoModal(mesaId);
-  } else if (mesa.garzonId === currentUser.id) {
-    showPage('page-mesas-garzon');
-  }
+  openPedidoModal(mesaId);
 }
 
 function renderGarzonHistorial() {
@@ -82,7 +85,7 @@ function renderGarzonHistorial() {
   hist.innerHTML = misEntregados.reverse().map(p => `
     <div class="card card-sm" style="margin-bottom:10px; opacity:0.8;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <strong style="font-size:14px;">Mesa ${p.mesaNum}</strong>
+        <strong style="font-size:14px;">Mesa ${p.mesaNum} ${p.clienteNombre ? `<span style="color:var(--accent);font-size:13px;margin-left:4px;">👤 ${p.clienteNombre}</span>` : ''}</strong>
         <span style="font-size:12px;color:var(--green);">✅ Entregado a mesa</span>
       </div>
       <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">${p.productos.map(x => `${x.qty}x ${x.nombre}`).join(', ')}</div>
