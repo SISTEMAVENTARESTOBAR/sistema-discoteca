@@ -27,16 +27,19 @@ const NAV_CONFIG = {
   bartender: [
     { section: 'Trabajo', items: [
       { icon: '🍺', label: 'Panel del Bar', page: 'page-bar' },
+      { icon: '🕒', label: 'Historial', page: 'page-bar-historial' },
     ]},
   ],
   cajero: [
     { section: 'Trabajo', items: [
       { icon: '💰', label: 'Panel de Caja', page: 'page-caja' },
+      { icon: '🕒', label: 'Historial', page: 'page-caja-historial' },
     ]},
   ],
   cocinero: [
     { section: 'Trabajo', items: [
       { icon: '👨🍳', label: 'Cocina', page: 'page-cocina' },
+      { icon: '🕒', label: 'Historial', page: 'page-cocina-historial' },
     ]},
   ],
 };
@@ -122,6 +125,9 @@ function renderPage(pageId) {
   if (pageId === 'page-mesas-garzon') renderMesasGarzon();
   if (pageId === 'page-garzon-historial') renderGarzonHistorial();
   if (pageId === 'page-bar') renderBar();
+  if (pageId === 'page-bar-historial') renderBarHistorial();
   if (pageId === 'page-cocina') renderCocina();
+  if (pageId === 'page-cocina-historial') renderCocinaHistorial();
   if (pageId === 'page-caja') renderCaja();
+  if (pageId === 'page-caja-historial') renderCajaHistorial();
 }

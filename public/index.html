@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema Discoteca — Sistema de Ventas</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=7">
+<link rel="stylesheet" href="css/styles.css?v=8">
 </head>
 <body>
 
@@ -382,6 +382,14 @@
       <div id="bar-pedidos"></div>
     </div>
 
+    <div class="page" id="page-bar-historial">
+      <div class="page-header">
+        <h2>Historial del Bar</h2>
+        <p>Bebidas preparadas el día de hoy</p>
+      </div>
+      <div id="historial-bar-list"></div>
+    </div>
+
     <!-- ===== PÁGINA: COCINA ===== -->
     <div class="page" id="page-cocina">
       <div class="page-header">
@@ -389,6 +397,14 @@
         <p>Pedidos de comida listos para preparar</p>
       </div>
       <div id="cocina-pedidos"></div>
+    </div>
+
+    <div class="page" id="page-cocina-historial">
+      <div class="page-header">
+        <h2>Historial de Cocina</h2>
+        <p>Comidas preparadas el día de hoy</p>
+      </div>
+      <div id="historial-cocina-list"></div>
     </div>
 
     <!-- ===== PÁGINA: CAJA ===== -->
@@ -408,6 +424,14 @@
         </div>
         <button class="btn btn-primary" style="width:auto;" onclick="confirmarCierre()">✅ Confirmar cierre de caja</button>
       </div>
+    </div>
+
+    <div class="page" id="page-caja-historial">
+      <div class="page-header">
+        <h2>Historial de Caja</h2>
+        <p>Cobros confirmados el día de hoy</p>
+      </div>
+      <div id="historial-caja-list"></div>
     </div>
 
   </div>
@@ -640,21 +664,21 @@
 <!-- ==================== SCRIPTS ==================== -->
 <script defer src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database-compat.js"></script>
-<script defer src="js/utils.js?v=7"></script>
-<script defer src="js/database.js?v=7"></script>
-<script defer src="js/notifications.js?v=7"></script>
-<script defer src="js/auth.js?v=7"></script>
-<script defer src="js/dashboard.js?v=7"></script>
-<script defer src="js/ventas.js?v=7"></script>
-<script defer src="js/mesas.js?v=7"></script>
-<script defer src="js/pedidos.js?v=7"></script>
-<script defer src="js/caja.js?v=7"></script>
-<script defer src="js/bar.js?v=7"></script>
-<script defer src="js/cocina.js?v=7"></script>
-<script defer src="js/usuarios.js?v=7"></script>
-<script defer src="js/menu.js?v=7"></script>
-<script defer src="js/navigation.js?v=7"></script>
-<script defer src="js/app.js?v=7"></script>
+<script defer src="js/utils.js?v=8"></script>
+<script defer src="js/database.js?v=8"></script>
+<script defer src="js/notifications.js?v=8"></script>
+<script defer src="js/auth.js?v=8"></script>
+<script defer src="js/dashboard.js?v=8"></script>
+<script defer src="js/ventas.js?v=8"></script>
+<script defer src="js/mesas.js?v=8"></script>
+<script defer src="js/pedidos.js?v=8"></script>
+<script defer src="js/caja.js?v=8"></script>
+<script defer src="js/bar.js?v=8"></script>
+<script defer src="js/cocina.js?v=8"></script>
+<script defer src="js/usuarios.js?v=8"></script>
+<script defer src="js/menu.js?v=8"></script>
+<script defer src="js/navigation.js?v=8"></script>
+<script defer src="js/app.js?v=8"></script>
 
 <!-- TOAST CONTAINER -->
 <div id="toast-container" class="toast-container"></div>

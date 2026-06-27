@@ -50,3 +50,27 @@ function barListo(pedidoId) {
   addLog(`Bar preparó pedido Mesa ${pedido.mesaNum}`);
   renderBar();
 }
+
+function renderBarHistorial() {
+  const hoy = getTodayStr();
+  const entregados = DB.pedidos.filter(p => p.notificarBar && p.barListo && p.fecha === hoy);
+  const container = document.getElementById('historial-bar-list');
+  if (entregados.length === 0) {
+    container.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">🕒</div><p>Aún no has preparado bebidas hoy</p></div></div>';
+    return;
+  }
+  container.innerHTML = entregados.reverse().map(p => {
+    const bebidas = p.productos.filter(pr => {
+      const prod = DB.productos.find(x => x.nombre === pr.nombre);
+      return prod && prod.categoria !== 'Comida';
+    });
+    return `<div class="card" style="margin-bottom:12px; opacity:0.8;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <strong>Mesa ${p.mesaNum} — ${p.garzonNombre}</strong>
+        <span style="font-size:12px;color:var(--text2);">${p.fecha} ${p.horaBar}</span>
+      </div>
+      <div style="margin-bottom:12px;">${bebidas.map(b => `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;">${b.qty}x ${b.nombre}</div>`).join('')}</div>
+      <div style="font-size:12px;color:var(--green);">✅ Preparado por ${p.bartenderNombre}</div>
+    </div>`;
+  }).join('');
+}

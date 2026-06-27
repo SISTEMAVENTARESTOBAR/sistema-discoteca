@@ -51,6 +51,30 @@ function cocinaListo(pedidoId) {
   renderCocina();
 }
 
+function renderCocinaHistorial() {
+  const hoy = getTodayStr();
+  const entregados = DB.pedidos.filter(p => p.notificarCocina && p.cocinaListo && p.fecha === hoy);
+  const container = document.getElementById('historial-cocina-list');
+  if (entregados.length === 0) {
+    container.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">🕒</div><p>Aún no has preparado comidas hoy</p></div></div>';
+    return;
+  }
+  container.innerHTML = entregados.reverse().map(p => {
+    const comidas = p.productos.filter(pr => {
+      const prod = DB.productos.find(x => x.nombre === pr.nombre);
+      return prod && prod.categoria === 'Comida';
+    });
+    return `<div class="card" style="margin-bottom:12px; opacity:0.8;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <strong>Mesa ${p.mesaNum} — ${p.garzonNombre}</strong>
+        <span style="font-size:12px;color:var(--text2);">${p.fecha} ${p.horacocina}</span>
+      </div>
+      <div style="margin-bottom:12px;">${comidas.map(c => `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;">${c.qty}x ${c.nombre}</div>`).join('')}</div>
+      <div style="font-size:12px;color:var(--green);">✅ Preparado por ${p.cocineraNombre}</div>
+    </div>`;
+  }).join('');
+}
+
 function checkTodoListo(pedidoId) {
   const pedido = DB.pedidos.find(p => p.id === pedidoId);
   if (!pedido) return;

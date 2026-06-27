@@ -182,3 +182,26 @@ function confirmarCierre() {
   alert('✅ Cierre de caja confirmado y registrado');
   renderCaja();
 }
+
+function renderCajaHistorial() {
+  const hoy = getTodayStr();
+  const confirmados = DB.pedidos.filter(p => p.cajeraId === currentUser.id && p.fecha === hoy && ['caja_confirmada', 'listo', 'entregado'].includes(p.estado));
+  const container = document.getElementById('historial-caja-list');
+  if (confirmados.length === 0) {
+    container.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">🕒</div><p>Aún no has confirmado cobros hoy</p></div></div>';
+    return;
+  }
+  container.innerHTML = confirmados.reverse().map(p => {
+    return `<div class="card" style="margin-bottom:12px; opacity:0.8;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <strong>Mesa ${p.mesaNum} — ${p.garzonNombre}</strong>
+        <span style="font-size:12px;color:var(--text2);">${p.fecha} ${p.horaCaja}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <strong style="font-family:'Syne',sans-serif;">Bs. ${p.total}</strong>
+        <span class="badge badge-${p.metodo}">${metodoLabel(p.metodo)}</span>
+      </div>
+      <div style="font-size:12px;color:var(--green);">✅ Confirmado por ${p.cajeraNombre}</div>
+    </div>`;
+  }).join('');
+}
