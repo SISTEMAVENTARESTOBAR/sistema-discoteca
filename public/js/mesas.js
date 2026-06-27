@@ -32,7 +32,7 @@ function renderMesasGarzon() {
   }).join('');
 
   // Pedidos activos del garzón
-  const misPedidos = DB.pedidos.filter(p => p.garzonId === currentUser.id && !['cobrado', 'anulado'].includes(p.estado));
+  const misPedidos = DB.pedidos.filter(p => p.garzonId === currentUser.id && !['cobrado', 'anulado', 'entregado'].includes(p.estado));
   const pa = document.getElementById('pedidos-activos-garzon');
   if (misPedidos.length === 0) {
     pa.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><p>Sin pedidos activos</p></div>';
@@ -69,4 +69,27 @@ function clickMesa(mesaId) {
   } else if (mesa.garzonId === currentUser.id) {
     showPage('page-mesas-garzon');
   }
+}
+
+function renderGarzonHistorial() {
+  const hoy = getTodayStr();
+  const misEntregados = DB.pedidos.filter(p => p.garzonId === currentUser.id && p.fecha === hoy && p.estado === 'entregado');
+  const hist = document.getElementById('historial-garzon-list');
+  if (misEntregados.length === 0) {
+    hist.innerHTML = '<div class="empty-state"><div class="empty-icon">🕒</div><p>Aún no has entregado pedidos hoy</p></div>';
+    return;
+  }
+  hist.innerHTML = misEntregados.reverse().map(p => `
+    <div class="card card-sm" style="margin-bottom:10px; opacity:0.8;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <strong style="font-size:14px;">Mesa ${p.mesaNum}</strong>
+        <span style="font-size:12px;color:var(--green);">✅ Entregado a mesa</span>
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">${p.productos.map(x => `${x.qty}x ${x.nombre}`).join(', ')}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <strong style="font-family:'Syne',sans-serif;">Bs. ${p.total}</strong>
+        <span class="badge badge-${p.metodo}">${metodoLabel(p.metodo)}</span>
+      </div>
+    </div>
+  `).join('');
 }

@@ -21,6 +21,7 @@ const NAV_CONFIG = {
   garzon: [
     { section: 'Trabajo', items: [
       { icon: '🪑', label: 'Mis mesas', page: 'page-mesas-garzon' },
+      { icon: '🕒', label: 'Historial', page: 'page-garzon-historial' },
     ]},
   ],
   bartender: [
@@ -119,6 +120,7 @@ function renderPage(pageId) {
   if (pageId === 'page-usuarios') renderUsuarios();
   if (pageId === 'page-menu') renderMenu();
   if (pageId === 'page-mesas-garzon') renderMesasGarzon();
+  if (pageId === 'page-garzon-historial') renderGarzonHistorial();
   if (pageId === 'page-bar') renderBar();
   if (pageId === 'page-cocina') renderCocina();
   if (pageId === 'page-caja') renderCaja();
