@@ -39,17 +39,17 @@ const DB = {
 // --- Firebase Listeners ---
 db.ref('usuarios').on('value', snap => {
   DB.usuarios = snap.val() ? Object.values(snap.val()).filter(Boolean) : [];
-  if (typeof renderUsuarios === 'function' && document.getElementById('page-usuarios').classList.contains('active')) renderUsuarios();
+  if (typeof renderUsuarios === 'function' && document.getElementById('page-usuarios')?.classList.contains('active')) renderUsuarios();
 });
 
 db.ref('productos').on('value', snap => {
   DB.productos = snap.val() ? Object.values(snap.val()).filter(Boolean) : [];
-  if (typeof renderMenu === 'function' && document.getElementById('page-menu').classList.contains('active')) renderMenu();
+  if (typeof renderMenu === 'function' && document.getElementById('page-menu')?.classList.contains('active')) renderMenu();
 });
 
 db.ref('mesas').on('value', snap => {
   if (snap.val()) DB.mesas = Object.values(snap.val()).filter(Boolean);
-  if (typeof renderMesasGarzon === 'function' && document.getElementById('page-mesas-garzon').classList.contains('active')) renderMesasGarzon();
+  if (typeof renderMesasGarzon === 'function' && document.getElementById('page-mesas-garzon')?.classList.contains('active')) renderMesasGarzon();
 });
 
 db.ref('pedidos').on('value', snap => {

@@ -24,13 +24,34 @@ function crearUsuario() {
   const rol = document.getElementById('nu-rol').value;
   if (!nombre || !usuario || !pass) return alert('Completa todos los campos');
   if (DB.usuarios.find(u => u.usuario === usuario)) return alert('Ese usuario ya existe');
-  DB.usuarios.push({ id: Date.now(), nombre, usuario, pass, rol, activo: true });
+
+  const id = Date.now();
+  const nuevoUsuario = { id, nombre, usuario, pass, rol, activo: true };
+
+  if (typeof db !== 'undefined') {
+    db.ref('usuarios/' + id).set(nuevoUsuario);
+  } else {
+    DB.usuarios.push(nuevoUsuario);
+  }
+
+  addLog(`Creó usuario "${nombre}" con rol ${rolLabel(rol)}`);
   closeModal('modal-nuevo-usuario');
+  document.getElementById('nu-nombre').value = '';
+  document.getElementById('nu-usuario').value = '';
+  document.getElementById('nu-pass').value = '';
   renderUsuarios();
 }
 
 function toggleUsuario(id) {
   const u = DB.usuarios.find(x => x.id === id);
-  if (u) u.activo = !u.activo;
+  if (!u) return;
+  u.activo = !u.activo;
+
+  if (typeof db !== 'undefined') {
+    db.ref('usuarios/' + id).update({ activo: u.activo });
+  }
+
+  addLog(`${u.activo ? 'Activó' : 'Desactivó'} usuario "${u.nombre}"`);
   renderUsuarios();
 }
+

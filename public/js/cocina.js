@@ -36,17 +36,19 @@ function cocinaListo(pedidoId) {
     horacocina: getTimeStr()
   };
 
+  // Siempre actualizar la copia local primero
+  Object.assign(pedido, updates);
+
   if (typeof db !== 'undefined') {
     db.ref('pedidos/' + pedidoId).update(updates).then(() => {
       checkTodoListo(pedidoId);
     });
   } else {
-    Object.assign(pedido, updates);
     checkTodoListo(pedidoId);
   }
   
   addLog(`Cocina preparó pedido Mesa ${pedido.mesaNum}`);
-  if (typeof renderCocina === 'function') renderCocina();
+  renderCocina();
 }
 
 function checkTodoListo(pedidoId) {

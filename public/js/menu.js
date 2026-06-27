@@ -38,22 +38,50 @@ function crearProducto() {
   const precio = parseFloat(document.getElementById('np-precio').value);
   const categoria = document.getElementById('np-categoria').value;
   if (!nombre || !precio) return alert('Completa todos los campos');
-  DB.productos.push({ id: Date.now(), nombre, precio, categoria, activo: true });
+
+  const id = Date.now();
+  const nuevoProducto = { id, nombre, precio, categoria, activo: true };
+
+  if (typeof db !== 'undefined') {
+    db.ref('productos/' + id).set(nuevoProducto);
+  } else {
+    DB.productos.push(nuevoProducto);
+  }
+
+  addLog(`Creó producto "${nombre}" — Bs. ${precio} — ${categoria}`);
   closeModal('modal-nuevo-producto');
+  document.getElementById('np-nombre').value = '';
+  document.getElementById('np-precio').value = '';
   renderMenu();
 }
 
 function toggleProducto(id) {
   const p = DB.productos.find(x => x.id === id);
-  if (p) p.activo = !p.activo;
+  if (!p) return;
+  p.activo = !p.activo;
+
+  if (typeof db !== 'undefined') {
+    db.ref('productos/' + id).update({ activo: p.activo });
+  }
+
+  addLog(`${p.activo ? 'Activó' : 'Desactivó'} producto "${p.nombre}"`);
   renderMenu();
 }
 
 function editarProductoPrecio(id) {
   const p = DB.productos.find(x => x.id === id);
+  if (!p) return;
   const nuevo = prompt(`Nuevo precio para "${p.nombre}" (actual: Bs. ${p.precio}):`, p.precio);
   if (nuevo !== null && !isNaN(nuevo) && parseFloat(nuevo) > 0) {
+    const precioAnterior = p.precio;
     p.precio = parseFloat(nuevo);
+
+    if (typeof db !== 'undefined') {
+      db.ref('productos/' + id).update({ precio: p.precio });
+    }
+
+    addLog(`Editó precio de "${p.nombre}": Bs. ${precioAnterior} → Bs. ${p.precio}`);
     renderMenu();
   }
 }
+
