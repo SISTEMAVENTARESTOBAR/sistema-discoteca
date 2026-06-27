@@ -38,22 +38,22 @@ const DB = {
 
 // --- Firebase Listeners ---
 db.ref('usuarios').on('value', snap => {
-  DB.usuarios = snap.val() ? Object.values(snap.val()) : [];
+  DB.usuarios = snap.val() ? Object.values(snap.val()).filter(Boolean) : [];
   if (typeof renderUsuarios === 'function' && document.getElementById('page-usuarios').classList.contains('active')) renderUsuarios();
 });
 
 db.ref('productos').on('value', snap => {
-  DB.productos = snap.val() ? Object.values(snap.val()) : [];
+  DB.productos = snap.val() ? Object.values(snap.val()).filter(Boolean) : [];
   if (typeof renderMenu === 'function' && document.getElementById('page-menu').classList.contains('active')) renderMenu();
 });
 
 db.ref('mesas').on('value', snap => {
-  if (snap.val()) DB.mesas = Object.values(snap.val());
+  if (snap.val()) DB.mesas = Object.values(snap.val()).filter(Boolean);
   if (typeof renderMesasGarzon === 'function' && document.getElementById('page-mesas-garzon').classList.contains('active')) renderMesasGarzon();
 });
 
 db.ref('pedidos').on('value', snap => {
-  DB.pedidos = snap.val() ? Object.values(snap.val()) : [];
+  DB.pedidos = snap.val() ? Object.values(snap.val()).filter(Boolean) : [];
   const nextId = Math.max(0, ...DB.pedidos.map(p => p.id)) + 1;
   DB.nextPedidoId = nextId;
   
@@ -65,7 +65,7 @@ db.ref('pedidos').on('value', snap => {
 });
 
 db.ref('ventas').on('value', snap => {
-  DB.ventas = snap.val() ? Object.values(snap.val()) : [];
+  DB.ventas = snap.val() ? Object.values(snap.val()).filter(Boolean) : [];
   const nextId = Math.max(0, ...DB.ventas.map(v => v.id)) + 1;
   DB.nextVentaId = nextId;
   if (document.getElementById('page-ventas')?.classList.contains('active')) renderVentas();
@@ -73,17 +73,17 @@ db.ref('ventas').on('value', snap => {
 });
 
 db.ref('anulaciones').on('value', snap => {
-  DB.anulaciones = snap.val() ? Object.values(snap.val()) : [];
+  DB.anulaciones = snap.val() ? Object.values(snap.val()).filter(Boolean) : [];
   if (document.getElementById('page-anulaciones')?.classList.contains('active')) renderAnulaciones();
 });
 
 db.ref('log').on('value', snap => {
-  DB.log = snap.val() ? Object.values(snap.val()) : [];
+  DB.log = snap.val() ? Object.values(snap.val()).filter(Boolean) : [];
   if (document.getElementById('page-log')?.classList.contains('active')) renderLog();
 });
 
 db.ref('cierres').on('value', snap => {
-  DB.cierres = snap.val() ? Object.values(snap.val()) : [];
+  DB.cierres = snap.val() ? Object.values(snap.val()).filter(Boolean) : [];
   if (document.getElementById('page-cierre')?.classList.contains('active')) renderCierreHistorial();
 });
 

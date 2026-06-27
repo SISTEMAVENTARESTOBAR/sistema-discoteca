@@ -64,10 +64,68 @@ const Notificaciones = {
   }
 };
 
+// --- Funciones UI para Notificaciones y Sincronización ---
+function mostrarToast(titulo, mensaje) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = `<div class="toast-title">🔔 ${titulo}</div><div class="toast-msg">${mensaje}</div>`;
+  container.appendChild(toast);
+  
+  // Animar entrada
+  requestAnimationFrame(() => {
+    toast.classList.add('show');
+  });
+  
+  // Remover después de 4 segundos
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
+function updateSyncStatus(connected) {
+  const dot = document.getElementById('sync-dot');
+  const text = document.getElementById('sync-text');
+  if (dot && text) {
+    if (connected) {
+      dot.style.background = '#4caf50'; // verde
+      text.innerText = 'Sincronizado';
+    } else {
+      dot.style.background = '#f44336'; // rojo
+      text.innerText = 'Desconectado';
+    }
+  }
+}
+
+function forceSync() {
+  if (typeof db !== 'undefined') {
+    const text = document.getElementById('sync-text');
+    if (text) text.innerText = 'Actualizando...';
+    // Reconectar firebase
+    firebase.database().goOffline();
+    setTimeout(() => {
+      firebase.database().goOnline();
+    }, 500);
+  }
+}
+
 // --- Firebase Listeners para Notificaciones ---
 if (typeof db !== 'undefined') {
+  // Listener de conexión
+  db.ref('.info/connected').on('value', snap => {
+    updateSyncStatus(snap.val() === true);
+  });
+
   db.ref('notificaciones').on('value', snap => {
     const data = snap.val() || {};
+    
+    const prevCajero = Notificaciones._pendientes.cajero.length;
+    const prevBartender = Notificaciones._pendientes.bartender.length;
+    const prevCocinero = Notificaciones._pendientes.cocinero.length;
+    const prevGarzon = Notificaciones._pendientes.garzon.length;
+
     Notificaciones._pendientes = {
       cajero: data.cajero ? Object.values(data.cajero) : [],
       bartender: data.bartender ? Object.values(data.bartender) : [],
@@ -76,9 +134,33 @@ if (typeof db !== 'undefined') {
       admin: data.admin ? Object.values(data.admin) : []
     };
     
-    // Actualizar badges UI
-    if (typeof renderNotificationBadge === 'function') {
-      if (currentUser && currentUser.rol) renderNotificationBadge(currentUser.rol);
+    // Si hay un usuario logueado, chequear si hay notificaciones nuevas para su rol
+    if (typeof currentUser !== 'undefined' && currentUser) {
+      const rol = currentUser.rol;
+      const arr = Notificaciones._pendientes[rol] || [];
+      let prevCount = 0;
+      if (rol === 'cajero') prevCount = prevCajero;
+      else if (rol === 'bartender') prevCount = prevBartender;
+      else if (rol === 'cocinero') prevCount = prevCocinero;
+      else if (rol === 'garzon') prevCount = prevGarzon;
+
+      if (arr.length > prevCount) {
+        // Mostrar toast del último elemento
+        const lastNotif = arr[arr.length - 1];
+        mostrarToast("Nueva Notificación", lastNotif.mensaje);
+        
+        // Intentar reproducir sonido de notificación si es posible
+        try {
+          const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+          audio.volume = 0.5;
+          audio.play().catch(e => console.log('Autoplay prevent:', e));
+        } catch(e) {}
+      }
+      
+      // Actualizar badges UI
+      if (typeof renderNotificationBadge === 'function') {
+        renderNotificationBadge(rol);
+      }
     }
   });
 }

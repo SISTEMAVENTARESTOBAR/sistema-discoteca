@@ -49,6 +49,10 @@
       <span>Sistema Discoteca</span>
     </div>
     <div class="topbar-right">
+      <div id="sync-status" onclick="forceSync()" style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border-radius:20px;background:var(--bg2);font-size:12px;font-weight:600;color:var(--text2);margin-right:10px;transition:0.3s;">
+        <span id="sync-dot" style="width:8px;height:8px;border-radius:50%;background:#4caf50;"></span>
+        <span id="sync-text">Sincronizado</span>
+      </div>
       <button onclick="toggleTheme()" style="background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--text2);font-size:18px;" id="topbar-theme-btn">☀️</button>
       <div class="topbar-user" id="topbar-avatar">A</div>
     </div>
@@ -643,5 +647,8 @@
 <script defer src="js/menu.js"></script>
 <script defer src="js/navigation.js"></script>
 <script defer src="js/app.js"></script>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container" class="toast-container"></div>
 </body>
 </html>
