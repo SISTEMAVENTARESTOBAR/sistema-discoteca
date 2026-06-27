@@ -28,12 +28,22 @@ function getMinutesAgo(horaStr) {
 }
 
 function addLog(accion) {
-  DB.log.push({
-    hora: getTimeStr(),
-    usuario: currentUser.nombre,
-    rol: currentUser.rol,
-    accion
-  });
+  if (typeof db !== 'undefined') {
+    db.ref('log').push({
+      hora: getTimeStr(),
+      usuario: currentUser.nombre,
+      rol: currentUser.rol,
+      accion
+    });
+  } else {
+    // Fallback if db is not loaded yet
+    DB.log.push({
+      hora: getTimeStr(),
+      usuario: currentUser.nombre,
+      rol: currentUser.rol,
+      accion
+    });
+  }
 }
 
 function openModal(id) {

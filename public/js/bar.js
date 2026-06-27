@@ -30,10 +30,21 @@ function renderBar() {
 function barListo(pedidoId) {
   const pedido = DB.pedidos.find(p => p.id === pedidoId);
   if (!pedido) return;
-  pedido.barListo = true;
-  pedido.bartenderNombre = currentUser.nombre;
-  pedido.horaBar = getTimeStr();
-  checkTodoListo(pedidoId);
+  const updates = {
+    barListo: true,
+    bartenderNombre: currentUser.nombre,
+    horaBar: getTimeStr()
+  };
+  
+  if (typeof db !== 'undefined') {
+    db.ref('pedidos/' + pedidoId).update(updates).then(() => {
+      checkTodoListo(pedidoId);
+    });
+  } else {
+    Object.assign(pedido, updates);
+    checkTodoListo(pedidoId);
+  }
+  
   addLog(`Bar preparó pedido Mesa ${pedido.mesaNum}`);
-  renderBar();
+  if (typeof renderBar === 'function') renderBar();
 }

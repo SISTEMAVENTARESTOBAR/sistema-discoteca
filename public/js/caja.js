@@ -118,13 +118,28 @@ function ejecutarConfirmarCaja() {
     const prod = DB.productos.find(x => x.nombre === p.nombre);
     return prod && prod.categoria === 'Comida';
   });
-  pedido.notificarBar = tieneBebidas;
-  pedido.notificarCocina = tieneComida;
-  pedido.barListo = !tieneBebidas;
-  pedido.cocinaListo = !tieneComida;
+  
+  const updates = {
+    estado: 'caja_confirmada',
+    cajeraId: currentUser.id,
+    cajeraNombre: currentUser.nombre,
+    horaCaja: hora,
+    cambio: cambioReal,
+    notificarBar: tieneBebidas,
+    notificarCocina: tieneComida,
+    barListo: !tieneBebidas,
+    cocinaListo: !tieneComida
+  };
 
   const mesa = DB.mesas.find(m => m.id === pedido.mesaId);
-  if (mesa) mesa.estado = 'preparando';
+  
+  if (typeof db !== 'undefined') {
+    db.ref('pedidos/' + pedido.id).update(updates);
+    if (mesa) db.ref('mesas/' + mesa.id).update({ estado: 'preparando' });
+  } else {
+    Object.assign(pedido, updates);
+    if (mesa) mesa.estado = 'preparando';
+  }
 
   // Notificar al bar y cocina
   Notificaciones.notificarPagoConfirmado(pedido);
@@ -143,7 +158,8 @@ function confirmarCierre() {
   const qr = cobradas.reduce((s, v) => s + (v.qr || 0), 0);
   const anulMonto = DB.anulaciones.filter(a => a.fecha === hoy).reduce((s, a) => s + a.monto, 0);
   const cambios = cobradas.reduce((s, v) => s + (v.cambio || 0), 0);
-  DB.cierres.push({
+  
+  const cierre = {
     fecha: hoy,
     hora: getTimeStr(),
     cajero: currentUser.nombre,
@@ -154,7 +170,14 @@ function confirmarCierre() {
     cambios,
     efectivoNeto: ef - cambios,
     obs
-  });
+  };
+
+  if (typeof db !== 'undefined') {
+    db.ref('cierres').push(cierre);
+  } else {
+    DB.cierres.push(cierre);
+  }
+  
   addLog(`Realizó cierre de caja — Total Bs.${totalV}`);
   alert('✅ Cierre de caja confirmado y registrado');
   renderCaja();

@@ -1,79 +1,84 @@
 // ============================================================
-// SISTEMA DE NOTIFICACIONES — Sistema Discoteca
-// Actualmente usa eventos locales.
-// Será reemplazado por Firebase Realtime Database listeners.
+// SISTEMA DE NOTIFICACIONES Y FIREBASE — Sistema Discoteca
 // ============================================================
 
 const Notificaciones = {
-  // Almacén de notificaciones pendientes por rol
-  _pendientes: {
-    cajero: [],
-    bartender: [],
-    cocinero: [],
-    garzon: [],
-    admin: []
-  },
+  _pendientes: { cajero: [], bartender: [], cocinero: [], garzon: [], admin: [] },
 
-  // Notificar a la cajera que hay un nuevo pedido pendiente de cobro
   notificarNuevoPedido(pedido) {
-    this._pendientes.cajero.push({
+    const data = {
       tipo: 'nuevo_pedido',
       mensaje: `Mesa ${pedido.mesaNum} — ${pedido.garzonNombre} — Bs. ${pedido.total}`,
       pedidoId: pedido.id,
       hora: getTimeStr()
-    });
-    console.log(`[NOTIFICACIÓN → CAJERO] Nuevo pedido Mesa ${pedido.mesaNum}`);
-    // TODO Firebase: db.ref('notificaciones/cajero').push(data)
+    };
+    if (typeof db !== 'undefined') db.ref('notificaciones/cajero').push(data);
+    else this._pendientes.cajero.push(data);
   },
 
-  // Notificar al bar y/o cocina que el pago fue confirmado
   notificarPagoConfirmado(pedido) {
     if (pedido.notificarBar) {
-      this._pendientes.bartender.push({
+      const data = {
         tipo: 'preparar_bebidas',
         mensaje: `Mesa ${pedido.mesaNum} — Preparar bebidas`,
         pedidoId: pedido.id,
         hora: getTimeStr()
-      });
-      console.log(`[NOTIFICACIÓN → BAR] Preparar bebidas Mesa ${pedido.mesaNum}`);
+      };
+      if (typeof db !== 'undefined') db.ref('notificaciones/bartender').push(data);
+      else this._pendientes.bartender.push(data);
     }
     if (pedido.notificarCocina) {
-      this._pendientes.cocinero.push({
+      const data = {
         tipo: 'preparar_comida',
         mensaje: `Mesa ${pedido.mesaNum} — Preparar comida`,
         pedidoId: pedido.id,
         hora: getTimeStr()
-      });
-      console.log(`[NOTIFICACIÓN → COCINA] Preparar comida Mesa ${pedido.mesaNum}`);
+      };
+      if (typeof db !== 'undefined') db.ref('notificaciones/cocinero').push(data);
+      else this._pendientes.cocinero.push(data);
     }
-    // TODO Firebase: db.ref('notificaciones/bar').push(data)
-    // TODO Firebase: db.ref('notificaciones/cocina').push(data)
   },
 
-  // Notificar al garzón que el pedido está listo para retirar
   notificarPedidoListo(pedido) {
-    this._pendientes.garzon.push({
+    const data = {
       tipo: 'pedido_listo',
       mensaje: `Mesa ${pedido.mesaNum} — ¡Listo para retirar!`,
       pedidoId: pedido.id,
       hora: getTimeStr()
-    });
-    console.log(`[NOTIFICACIÓN → GARZÓN] Pedido listo Mesa ${pedido.mesaNum}`);
-    // TODO Firebase: db.ref('notificaciones/garzon').push(data)
+    };
+    if (typeof db !== 'undefined') db.ref('notificaciones/garzon').push(data);
+    else this._pendientes.garzon.push(data);
   },
 
-  // Obtener notificaciones pendientes para un rol
   obtenerPendientes(rol) {
     return this._pendientes[rol] || [];
   },
 
-  // Limpiar notificaciones de un rol
   limpiar(rol) {
+    if (typeof db !== 'undefined') db.ref('notificaciones/' + rol).remove();
     this._pendientes[rol] = [];
   },
 
-  // Contar pendientes para un rol
   contarPendientes(rol) {
     return (this._pendientes[rol] || []).length;
   }
 };
+
+// --- Firebase Listeners para Notificaciones ---
+if (typeof db !== 'undefined') {
+  db.ref('notificaciones').on('value', snap => {
+    const data = snap.val() || {};
+    Notificaciones._pendientes = {
+      cajero: data.cajero ? Object.values(data.cajero) : [],
+      bartender: data.bartender ? Object.values(data.bartender) : [],
+      cocinero: data.cocinero ? Object.values(data.cocinero) : [],
+      garzon: data.garzon ? Object.values(data.garzon) : [],
+      admin: data.admin ? Object.values(data.admin) : []
+    };
+    
+    // Actualizar badges UI
+    if (typeof renderNotificationBadge === 'function') {
+      if (currentUser && currentUser.rol) renderNotificationBadge(currentUser.rol);
+    }
+  });
+}

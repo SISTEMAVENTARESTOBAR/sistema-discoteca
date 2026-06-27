@@ -30,21 +30,38 @@ function renderCocina() {
 function cocinaListo(pedidoId) {
   const pedido = DB.pedidos.find(p => p.id === pedidoId);
   if (!pedido) return;
-  pedido.cocinaListo = true;
-  pedido.cocineraNombre = currentUser.nombre;
-  pedido.horacocina = getTimeStr();
-  checkTodoListo(pedidoId);
+  const updates = {
+    cocinaListo: true,
+    cocineraNombre: currentUser.nombre,
+    horacocina: getTimeStr()
+  };
+
+  if (typeof db !== 'undefined') {
+    db.ref('pedidos/' + pedidoId).update(updates).then(() => {
+      checkTodoListo(pedidoId);
+    });
+  } else {
+    Object.assign(pedido, updates);
+    checkTodoListo(pedidoId);
+  }
+  
   addLog(`Cocina preparó pedido Mesa ${pedido.mesaNum}`);
-  renderCocina();
+  if (typeof renderCocina === 'function') renderCocina();
 }
 
 function checkTodoListo(pedidoId) {
   const pedido = DB.pedidos.find(p => p.id === pedidoId);
   if (!pedido) return;
-  if (pedido.barListo && pedido.cocinaListo) {
-    pedido.estado = 'listo';
-    const mesa = DB.mesas.find(m => m.id === pedido.mesaId);
-    if (mesa) mesa.estado = 'listo';
+  if (pedido.barListo && pedido.cocinaListo && pedido.estado !== 'listo') {
+    if (typeof db !== 'undefined') {
+      db.ref('pedidos/' + pedido.id).update({ estado: 'listo' });
+      const mesa = DB.mesas.find(m => m.id === pedido.mesaId);
+      if (mesa) db.ref('mesas/' + mesa.id).update({ estado: 'listo' });
+    } else {
+      pedido.estado = 'listo';
+      const mesa = DB.mesas.find(m => m.id === pedido.mesaId);
+      if (mesa) mesa.estado = 'listo';
+    }
     // Notificar al garzón
     Notificaciones.notificarPedidoListo(pedido);
   }

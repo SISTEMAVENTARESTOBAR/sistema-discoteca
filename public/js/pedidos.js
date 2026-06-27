@@ -217,12 +217,20 @@ function confirmarPedido() {
     bartenderConfirmado: false,
     cocineraConfirmada: false,
   };
-  DB.pedidos.push(pedido);
-
-  // Actualizar mesa
-  selectedMesa.estado = 'esperando';
-  selectedMesa.garzonId = currentUser.id;
-  selectedMesa.pedidoId = pedidoId;
+  
+  if (typeof db !== 'undefined') {
+    db.ref('pedidos/' + pedidoId).set(pedido);
+    db.ref('mesas/' + selectedMesa.id).update({
+      estado: 'esperando',
+      garzonId: currentUser.id,
+      pedidoId: pedidoId
+    });
+  } else {
+    DB.pedidos.push(pedido);
+    selectedMesa.estado = 'esperando';
+    selectedMesa.garzonId = currentUser.id;
+    selectedMesa.pedidoId = pedidoId;
+  }
 
   // Notificar a la cajera
   Notificaciones.notificarNuevoPedido(pedido);
@@ -259,8 +267,21 @@ function ejecutarAnulacion() {
   const hora = getTimeStr();
   pedido.estado = 'anulado';
   const mesa = DB.mesas.find(m => m.id === pedido.mesaId);
-  if (mesa) { mesa.estado = 'libre'; mesa.garzonId = null; mesa.pedidoId = null; }
-  DB.anulaciones.push({ id: DB.anulaciones.length + 1, mesa: pedido.mesaNum, garzonId: currentUser.id, garzonNombre: currentUser.nombre, fecha: hoy, hora, monto: pedido.total, motivo });
+  const anulacionId = DB.anulaciones.length + 1;
+  const anulacion = { id: anulacionId, mesa: pedido.mesaNum, garzonId: currentUser.id, garzonNombre: currentUser.nombre, fecha: hoy, hora, monto: pedido.total, motivo };
+  
+  if (typeof db !== 'undefined') {
+    db.ref('pedidos/' + pedido.id).update({ estado: 'anulado' });
+    if (mesa) {
+      db.ref('mesas/' + mesa.id).update({ estado: 'libre', garzonId: null, pedidoId: null });
+    }
+    db.ref('anulaciones/' + anulacionId).set(anulacion);
+  } else {
+    pedido.estado = 'anulado';
+    if (mesa) { mesa.estado = 'libre'; mesa.garzonId = null; mesa.pedidoId = null; }
+    DB.anulaciones.push(anulacion);
+  }
+  
   addLog(`Anuló pedido Mesa ${pedido.mesaNum} — Motivo: ${motivo}`);
   closeModal('modal-anular');
   renderMesasGarzon();
@@ -269,13 +290,12 @@ function ejecutarAnulacion() {
 function marcarEntregadoMesa(pedidoId) {
   const pedido = DB.pedidos.find(p => p.id === pedidoId);
   if (!pedido) return;
-  pedido.estado = 'entregado';
   const mesa = DB.mesas.find(m => m.id === pedido.mesaId);
-  if (mesa) mesa.estado = 'entregado';
-
+  
   // Crear venta final
+  const ventaId = DB.nextVentaId++;
   const venta = {
-    id: DB.nextVentaId++,
+    id: ventaId,
     mesa: pedido.mesaNum,
     garzonId: pedido.garzonId,
     garzonNombre: pedido.garzonNombre,
@@ -299,12 +319,25 @@ function marcarEntregadoMesa(pedidoId) {
     horacocina: pedido.horacocina || null,
     estado: 'cobrado',
   };
-  DB.ventas.push(venta);
+  
+  if (typeof db !== 'undefined') {
+    db.ref('pedidos/' + pedido.id).update({ estado: 'entregado' });
+    if (mesa) db.ref('mesas/' + mesa.id).update({ estado: 'entregado' });
+    db.ref('ventas/' + ventaId).set(venta);
+  } else {
+    pedido.estado = 'entregado';
+    if (mesa) mesa.estado = 'entregado';
+    DB.ventas.push(venta);
+  }
 
   // Liberar mesa después de un momento
   setTimeout(() => {
-    if (mesa) { mesa.estado = 'libre'; mesa.garzonId = null; mesa.pedidoId = null; }
-    renderMesasGarzon();
+    if (typeof db !== 'undefined') {
+      if (mesa) db.ref('mesas/' + mesa.id).update({ estado: 'libre', garzonId: null, pedidoId: null });
+    } else {
+      if (mesa) { mesa.estado = 'libre'; mesa.garzonId = null; mesa.pedidoId = null; }
+      renderMesasGarzon();
+    }
   }, 3000);
 
   addLog(`Entregó pedido a Mesa ${pedido.mesaNum} — venta #${String(venta.id).padStart(4, '0')} registrada`);
