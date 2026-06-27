@@ -7,10 +7,10 @@ function renderDashboard() {
   const hoy = getTodayStr();
   document.getElementById('dash-fecha').textContent = formatFechaLarga(hoy);
 
-  const ventasHoy = DB.ventas.filter(v => v.fecha === hoy && v.estado === 'cobrado');
-  const totalHoy = ventasHoy.reduce((s, v) => s + v.total, 0);
-  const efectivoHoy = ventasHoy.reduce((s, v) => s + (v.efectivo || 0), 0);
-  const qrHoy = ventasHoy.reduce((s, v) => s + (v.qr || 0), 0);
+  const ventasHoy = DB.pedidos.filter(p => p.fecha === hoy && ['caja_confirmada', 'listo', 'entregado'].includes(p.estado));
+  const totalHoy = ventasHoy.reduce((s, p) => s + p.total, 0);
+  const efectivoHoy = ventasHoy.reduce((s, p) => s + (p.efectivo || 0), 0);
+  const qrHoy = ventasHoy.reduce((s, p) => s + (p.qr || 0), 0);
 
   document.getElementById('stat-total').textContent = `Bs. ${totalHoy}`;
   document.getElementById('stat-efectivo').textContent = `Bs. ${efectivoHoy}`;
@@ -29,10 +29,10 @@ function renderDashboard() {
   // Top productos
   const conteo = {};
   const ingresos = {};
-  DB.ventas.filter(v => v.fecha === hoy && v.estado === 'cobrado').forEach(v => {
-    v.productos.forEach(p => {
-      conteo[p.nombre] = (conteo[p.nombre] || 0) + p.qty;
-      ingresos[p.nombre] = (ingresos[p.nombre] || 0) + p.qty * p.precio;
+  DB.pedidos.filter(p => p.fecha === hoy && ['caja_confirmada', 'listo', 'entregado'].includes(p.estado)).forEach(p => {
+    p.productos.forEach(prod => {
+      conteo[prod.nombre] = (conteo[prod.nombre] || 0) + prod.qty;
+      ingresos[prod.nombre] = (ingresos[prod.nombre] || 0) + prod.qty * prod.precio;
     });
   });
   const sorted = Object.keys(conteo).sort((a, b) => conteo[b] - conteo[a]).slice(0, 5);
@@ -51,15 +51,15 @@ function renderDashboard() {
 
   // Últimas ventas
   const uv = document.getElementById('ultimas-ventas');
-  const ultimas = [...DB.ventas].reverse().slice(0, 5);
+  const ultimas = [...ventasHoy].reverse().slice(0, 5);
   if (ultimas.length === 0) {
     uv.innerHTML = '<div class="empty-state"><div class="empty-icon">🧾</div><p>Sin ventas aún</p></div>';
   } else {
     uv.innerHTML = ultimas.map(v => `
       <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
         <div style="flex:1;">
-          <div style="font-size:13px;font-weight:500;">Mesa ${v.mesa} — ${v.garzonNombre}</div>
-          <div style="font-size:11px;color:var(--text3);">${v.fecha} ${v.hora}</div>
+          <div style="font-size:13px;font-weight:500;">Mesa ${v.mesaNum} — ${v.garzonNombre}</div>
+          <div style="font-size:11px;color:var(--text3);">${v.fecha} ${v.horaCreacion}</div>
         </div>
         <div style="text-align:right;">
           <div style="font-size:14px;font-weight:700;font-family:'Syne',sans-serif;">Bs. ${v.total}</div>

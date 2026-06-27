@@ -42,12 +42,12 @@ function renderCaja() {
 
   // Resumen cierre
   const hoy = getTodayStr();
-  const cobradas = DB.ventas.filter(v => v.fecha === hoy && v.estado === 'cobrado');
-  const totalV = cobradas.reduce((s, v) => s + v.total, 0);
-  const ef = cobradas.reduce((s, v) => s + (v.efectivo || 0), 0);
-  const qr = cobradas.reduce((s, v) => s + (v.qr || 0), 0);
+  const cobradas = DB.pedidos.filter(p => p.fecha === hoy && ['caja_confirmada', 'listo', 'entregado'].includes(p.estado));
+  const totalV = cobradas.reduce((s, p) => s + p.total, 0);
+  const ef = cobradas.reduce((s, p) => s + (p.efectivo || 0), 0);
+  const qr = cobradas.reduce((s, p) => s + (p.qr || 0), 0);
   const anulMonto = DB.anulaciones.filter(a => a.fecha === hoy).reduce((s, a) => s + a.monto, 0);
-  const cambios = cobradas.reduce((s, v) => s + (v.cambio || 0), 0);
+  const cambios = cobradas.reduce((s, p) => s + (p.cambio || 0), 0);
   document.getElementById('cierre-summary-data').innerHTML = `
     <div class="cierre-row"><span>Total ventas del día</span><span>Bs. ${totalV}</span></div>
     <div class="cierre-row"><span>💵 Efectivo cobrado</span><span style="color:var(--green);">Bs. ${ef}</span></div>
@@ -152,12 +152,12 @@ function ejecutarConfirmarCaja() {
 function confirmarCierre() {
   const obs = document.getElementById('cierre-obs').value.trim();
   const hoy = getTodayStr();
-  const cobradas = DB.ventas.filter(v => v.fecha === hoy && v.estado === 'cobrado');
-  const totalV = cobradas.reduce((s, v) => s + v.total, 0);
-  const ef = cobradas.reduce((s, v) => s + (v.efectivo || 0), 0);
-  const qr = cobradas.reduce((s, v) => s + (v.qr || 0), 0);
+  const cobradas = DB.pedidos.filter(p => p.fecha === hoy && ['caja_confirmada', 'listo', 'entregado'].includes(p.estado));
+  const totalV = cobradas.reduce((s, p) => s + p.total, 0);
+  const ef = cobradas.reduce((s, p) => s + (p.efectivo || 0), 0);
+  const qr = cobradas.reduce((s, p) => s + (p.qr || 0), 0);
   const anulMonto = DB.anulaciones.filter(a => a.fecha === hoy).reduce((s, a) => s + a.monto, 0);
-  const cambios = cobradas.reduce((s, v) => s + (v.cambio || 0), 0);
+  const cambios = cobradas.reduce((s, p) => s + (p.cambio || 0), 0);
   
   const cierre = {
     fecha: hoy,
