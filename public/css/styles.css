@@ -661,30 +661,76 @@ tbody tr:hover td { background: var(--bg2); }
 .bottom-nav {
   display: none;
   position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: 64px;
-  background: var(--card);
-  border-top: 1px solid var(--border);
+  bottom: 20px; 
+  left: 50%;
+  transform: translateX(-50%);
+  height: 60px;
+  background: rgba(26, 26, 46, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 30px;
   z-index: 200;
   align-items: center;
-  justify-content: space-around;
-  padding: 0 8px;
+  justify-content: center;
+  padding: 0 10px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  width: max-content;
+  max-width: 95vw;
+  gap: 4px;
 }
 .bottom-nav-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 6px 12px;
-  border-radius: 12px;
+  justify-content: center;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 22px;
   cursor: pointer;
   color: var(--text3);
-  transition: all 0.15s;
-  min-width: 52px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
-.bottom-nav-item.active { color: var(--accent); background: rgba(124,92,252,0.1); }
-.bottom-nav-item .bn-icon { font-size: 20px; }
-.bottom-nav-item .bn-label { font-size: 10px; font-weight: 600; }
+.bottom-nav-item.active { 
+  color: var(--green); 
+}
+.bottom-nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: var(--green);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+.bottom-nav-item.active::after {
+  width: 24px;
+}
+.bottom-nav-item .bn-icon { 
+  font-size: 22px; 
+  transition: transform 0.3s ease;
+}
+.bottom-nav-item.active .bn-icon {
+  transform: translateY(-2px);
+}
+.bottom-nav-item .bn-label { 
+  font-size: 14px; 
+  font-weight: 600; 
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+.bottom-nav-item.active .bn-label { 
+  max-width: 120px;
+  opacity: 1;
+  margin-left: 8px;
+  transform: translateY(-2px);
+}
 
 /* ===================== MOBILE DRAWER ===================== */
 .mobile-drawer-overlay {
