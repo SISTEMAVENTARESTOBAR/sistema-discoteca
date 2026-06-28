@@ -324,6 +324,8 @@ function marcarEntregadoMesa(pedidoId) {
     pedido.horaCierre = venta.horaCierre;
     DB.ventas.push(venta);
   }
+  
+  addLog(`Entregó pedido a Mesa ${pedido.mesaNum}`);
 
   // Notificar al sistema para re-renderizar
   setTimeout(() => {

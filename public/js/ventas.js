@@ -472,16 +472,21 @@ function renderLog() {
       </div>
     `;
     
-    html += groups[date].map(l => `
+    html += groups[date].map(l => {
+      let rName = rolLabel(l.rol);
+      if (l.rol === 'cajero' || l.rol === 'caja') rName = 'Cajera';
+      if (l.rol === 'bartender' || l.rol === 'bar') rName = 'Bar';
+      return `
       <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
         <div style="font-size:12px;color:var(--text3);min-width:40px;">${l.hora}</div>
         <div style="width:10px;height:10px;border-radius:50%;background:${rolColor(l.rol)};flex-shrink:0;"></div>
         <div style="flex:1;">
-          <strong style="font-size:13px;">${l.usuario}</strong>
+          <strong style="font-size:13px;text-transform:capitalize;">${formatShortName(l.usuario)} <span style="font-size:11px;color:var(--text3);font-weight:normal;">(${rName})</span></strong>
           <span style="font-size:12px;color:var(--text2);margin-left:6px;">${l.accion}</span>
         </div>
         <span style="font-size:11px;color:var(--text3);background:var(--bg2);padding:2px 8px;border-radius:6px;border:1px solid var(--border);">${rolLabel(l.rol)}</span>
-      </div>`).join('');
+      </div>`
+    }).join('');
   });
   
   list.innerHTML = html;

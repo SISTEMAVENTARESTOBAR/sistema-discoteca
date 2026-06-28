@@ -11,6 +11,13 @@ function getTodayStr() {
   return new Date().toISOString().split('T')[0];
 }
 
+function formatShortName(fullName) {
+  if (!fullName) return '';
+  const words = fullName.trim().split(/\s+/);
+  const formatted = words.slice(0, 2).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+  return formatted.join(' ');
+}
+
 function getTimeStr() {
   return new Date().toTimeString().slice(0, 5);
 }
