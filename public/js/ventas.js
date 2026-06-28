@@ -11,6 +11,10 @@ let dpSelectingEnd = false;
 let dpActivePreset = 'hoy';
 
 function renderVentas() {
+  if (currentUser.rol !== 'admin') {
+    document.getElementById('ventas-tbody').innerHTML = '<tr><td colspan="8" style="color:red;text-align:center;">Acceso Denegado</td></tr>';
+    return;
+  }
   poblarFiltroGarzon();
   // Initialize date picker to "Hoy" on first render
   if (!dpStartDate) {
@@ -59,13 +63,13 @@ function aplicarFiltros() {
   if (metodo) ventas = ventas.filter(v => v.metodo === metodo);
   const estado = document.getElementById('f-estado').value;
   if (estado) ventas = ventas.filter(v => v.estado === estado);
-  const buscar = document.getElementById('f-buscar').value.trim().toLowerCase();
-  if (buscar) ventas = ventas.filter(v => String(v.id).includes(buscar) || String(v.mesa).includes(buscar));
+  const buscar = normalizeText(document.getElementById('f-buscar').value.trim());
+  if (buscar) ventas = ventas.filter(v => String(v.id).includes(buscar) || String(v.mesa).includes(buscar) || normalizeText(v.clienteNombre).includes(buscar) || normalizeText(v.garzonNombre).includes(buscar));
 
   const cobradas = ventas.filter(v => v.estado === 'cobrado');
-  document.getElementById('v-total').textContent = `Bs. ${cobradas.reduce((s, v) => s + v.total, 0)}`;
-  document.getElementById('v-efectivo').textContent = `Bs. ${cobradas.reduce((s, v) => s + (v.efectivo || 0), 0)}`;
-  document.getElementById('v-qr').textContent = `Bs. ${cobradas.reduce((s, v) => s + (v.qr || 0), 0)}`;
+  document.getElementById('v-total').textContent = `Bs. ${Number(cobradas.reduce((s, v) => s + v.total, 0).toFixed(2))}`;
+  document.getElementById('v-efectivo').textContent = `Bs. ${Number(cobradas.reduce((s, v) => s + (v.efectivo || 0), 0).toFixed(2))}`;
+  document.getElementById('v-qr').textContent = `Bs. ${Number(cobradas.reduce((s, v) => s + (v.qr || 0), 0).toFixed(2))}`;
 
   const tbody = document.getElementById('ventas-tbody');
   if (ventas.length === 0) {
@@ -404,6 +408,10 @@ function renderAnulaciones() {
 // ============================================================
 function renderLog() {
   const list = document.getElementById('log-list');
+  if (currentUser.rol !== 'admin') {
+    list.innerHTML = '<div style="padding:20px;color:red;text-align:center;">Acceso Denegado</div>';
+    return;
+  }
   if (DB.log.length === 0) {
     list.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>Sin registros</p></div>';
     return;
@@ -411,13 +419,13 @@ function renderLog() {
 
   // Apply search filter
   const searchInput = document.getElementById('log-search-input');
-  const searchTerms = searchInput ? searchInput.value.toLowerCase().split(' ').filter(x => x) : [];
+  const searchTerms = searchInput ? normalizeText(searchInput.value).split(' ').filter(x => x) : [];
   
   let logsToRender = [...DB.log].reverse();
   
   if (searchTerms.length > 0) {
     logsToRender = logsToRender.filter(l => {
-      const text = `${l.usuario} ${l.accion}`.toLowerCase();
+      const text = normalizeText(`${l.usuario} ${l.accion}`);
       return searchTerms.every(t => text.includes(t));
     });
   }

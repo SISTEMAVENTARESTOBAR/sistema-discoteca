@@ -2,6 +2,11 @@
 // UTILIDADES — Sistema Discoteca
 // ============================================================
 
+function normalizeText(str) {
+  if (!str) return '';
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
 function getTodayStr() {
   return new Date().toISOString().split('T')[0];
 }

@@ -13,6 +13,10 @@ let activeCategory = null;
 
 function openPedidoModal(mesaId) {
   selectedMesa = DB.mesas.find(m => m.id === mesaId);
+  if (!selectedMesa) {
+    alert('Esta mesa ya no existe o fue eliminada por un administrador.');
+    return;
+  }
   cart = [];
   selectedPayMethod = null;
   qrFileData = null;

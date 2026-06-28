@@ -6,7 +6,12 @@
 let confirmarCajaVentaId = null;
 
 function renderCaja() {
-  const pendientes = DB.pedidos.filter(p => p.estado === 'pendiente');
+  if (currentUser.rol !== 'caja' && currentUser.rol !== 'admin') {
+    document.getElementById('caja-cobros').innerHTML = '<div style="padding:20px;color:red;text-align:center;">Acceso Denegado</div>';
+    return;
+  }
+
+  const pendientes = DB.pedidos.filter(p => p.estado === 'pendiente' || p.estado === 'esperando_pago');
   const container = document.getElementById('caja-cobros');
 
   if (pendientes.length === 0) {
@@ -35,7 +40,10 @@ function renderCaja() {
           ${p.cambio > 0 ? `<span style="margin-left:8px;color:var(--green);">Cambio: Bs. ${p.cambio}</span>` : ''}
         </div>
         ${p.comprobante ? `<div style="margin-bottom:10px;"><img src="${p.comprobante}" style="max-height:80px;border-radius:6px;border:1px solid var(--border);"></div>` : ''}
-        <button class="btn btn-success" onclick="openConfirmarCaja(${p.id})">✅ Confirmar recepción</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline" style="color:var(--red);border-color:var(--red);flex:1;" onclick="rechazarPedidoCaja(${p.id})">❌ Rechazar</button>
+          <button class="btn btn-success" style="flex:2;" onclick="openConfirmarCaja(${p.id})">✅ Confirmar recepción</button>
+        </div>
       </div>`;
     }).join('');
   }
@@ -43,18 +51,18 @@ function renderCaja() {
   // Resumen cierre
   const hoy = getTodayStr();
   const cobradas = DB.pedidos.filter(p => p.fecha === hoy && ['caja_confirmada', 'listo', 'entregado'].includes(p.estado));
-  const totalV = cobradas.reduce((s, p) => s + p.total, 0);
-  const ef = cobradas.reduce((s, p) => s + (p.efectivo || 0), 0);
-  const qr = cobradas.reduce((s, p) => s + (p.qr || 0), 0);
-  const anulMonto = DB.anulaciones.filter(a => a.fecha === hoy).reduce((s, a) => s + a.monto, 0);
-  const cambios = cobradas.reduce((s, p) => s + (p.cambio || 0), 0);
+  const totalV = Number(cobradas.reduce((s, p) => s + p.total, 0).toFixed(2));
+  const ef = Number(cobradas.reduce((s, p) => s + (p.efectivo || 0), 0).toFixed(2));
+  const qr = Number(cobradas.reduce((s, p) => s + (p.qr || 0), 0).toFixed(2));
+  const anulMonto = Number(DB.anulaciones.filter(a => a.fecha === hoy).reduce((s, a) => s + a.monto, 0).toFixed(2));
+  const cambios = Number(cobradas.reduce((s, p) => s + (p.cambio || 0), 0).toFixed(2));
   document.getElementById('cierre-summary-data').innerHTML = `
     <div class="cierre-row"><span>Total ventas del día</span><span>Bs. ${totalV}</span></div>
     <div class="cierre-row"><span>💵 Efectivo cobrado</span><span style="color:var(--green);">Bs. ${ef}</span></div>
     <div class="cierre-row"><span>📱 QR cobrado</span><span style="color:var(--blue);">Bs. ${qr}</span></div>
     <div class="cierre-row"><span>⚠️ Anulaciones</span><span style="color:var(--red);">Bs. ${anulMonto}</span></div>
     <div class="cierre-row"><span>Cambios devueltos</span><span>Bs. ${cambios}</span></div>
-    <div class="cierre-row"><span>Efectivo neto en caja</span><span style="color:var(--green);">Bs. ${ef - cambios}</span></div>`;
+    <div class="cierre-row"><span>Efectivo neto en caja</span><span style="color:var(--green);">Bs. ${Number((ef - cambios).toFixed(2))}</span></div>`;
 }
 
 function openConfirmarCaja(pedidoId) {
@@ -153,11 +161,11 @@ function confirmarCierre() {
   const obs = document.getElementById('cierre-obs').value.trim();
   const hoy = getTodayStr();
   const cobradas = DB.pedidos.filter(p => p.fecha === hoy && ['caja_confirmada', 'listo', 'entregado'].includes(p.estado));
-  const totalV = cobradas.reduce((s, p) => s + p.total, 0);
-  const ef = cobradas.reduce((s, p) => s + (p.efectivo || 0), 0);
-  const qr = cobradas.reduce((s, p) => s + (p.qr || 0), 0);
-  const anulMonto = DB.anulaciones.filter(a => a.fecha === hoy).reduce((s, a) => s + a.monto, 0);
-  const cambios = cobradas.reduce((s, p) => s + (p.cambio || 0), 0);
+  const totalV = Number(cobradas.reduce((s, p) => s + p.total, 0).toFixed(2));
+  const ef = Number(cobradas.reduce((s, p) => s + (p.efectivo || 0), 0).toFixed(2));
+  const qr = Number(cobradas.reduce((s, p) => s + (p.qr || 0), 0).toFixed(2));
+  const anulMonto = Number(DB.anulaciones.filter(a => a.fecha === hoy).reduce((s, a) => s + a.monto, 0).toFixed(2));
+  const cambios = Number(cobradas.reduce((s, p) => s + (p.cambio || 0), 0).toFixed(2));
   
   const cierre = {
     fecha: hoy,
@@ -204,4 +212,42 @@ function renderCajaHistorial() {
       <div style="font-size:12px;color:var(--green);">✅ Confirmado por ${p.cajeraNombre}</div>
     </div>`;
   }).join('');
+}
+
+function rechazarPedidoCaja(pedidoId) {
+  if (currentUser.rol !== 'caja' && currentUser.rol !== 'admin') { alert('Acceso denegado'); return; }
+  const motivo = prompt('Motivo del rechazo:');
+  if (!motivo) return;
+
+  const pedido = DB.pedidos.find(p => p.id === pedidoId);
+  if (!pedido) return;
+  const hoy = getTodayStr();
+  const hora = getTimeStr();
+  const anulacionId = Date.now(); // Unique ID fallback
+  
+  const anulacion = { 
+    id: anulacionId, 
+    mesa: pedido.mesaNum, 
+    garzonId: currentUser.id, 
+    garzonNombre: currentUser.nombre, 
+    fecha: hoy, 
+    hora, 
+    monto: pedido.total, 
+    motivo: 'Caja Rechazó: ' + motivo 
+  };
+  
+  const mesa = DB.mesas.find(m => m.id === pedido.mesaId);
+
+  if (typeof db !== 'undefined') {
+    db.ref('pedidos/' + pedido.id).update({ estado: 'anulado' });
+    db.ref('anulaciones/' + anulacionId).set(anulacion);
+    if (mesa) db.ref('mesas/' + mesa.id).update({ estado: 'libre' });
+  } else {
+    pedido.estado = 'anulado';
+    DB.anulaciones.push(anulacion);
+    if (mesa) mesa.estado = 'libre';
+  }
+  
+  addLog(`Caja rechazó pedido Mesa ${pedido.mesaNum} — Motivo: ${motivo}`);
+  renderCaja();
 }

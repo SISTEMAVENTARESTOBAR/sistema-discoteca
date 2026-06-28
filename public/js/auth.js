@@ -15,6 +15,11 @@ function doLogin() {
   currentUser = found;
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
+  
+  if (typeof window.unlockAudioContext === 'function') {
+    window.unlockAudioContext();
+  }
+  
   initApp();
 }
 

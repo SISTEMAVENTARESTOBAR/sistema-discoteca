@@ -3,6 +3,10 @@
 // ============================================================
 
 function renderMesasGarzon() {
+  if (currentUser.rol !== 'garzon' && currentUser.rol !== 'admin') {
+    document.getElementById('mesas-garzon-grid').innerHTML = '<div style="padding:20px;color:red;text-align:center;">Acceso Denegado</div>';
+    return;
+  }
   const hoy = getTodayStr();
   const anulacionesHoy = DB.anulaciones.filter(a => a.garzonId === currentUser.id && a.fecha === hoy).length;
   const alertDiv = document.getElementById('alert-anulaciones-garzon');

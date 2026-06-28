@@ -111,6 +111,20 @@ function forceSync() {
   }
 }
 
+// --- Audio Preload & Unlock ---
+const audioGarzon = new Audio('audio/notification.wav');
+const audioCajera = new Audio('audio/cajera.wav');
+const audioGeneral = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+
+window.unlockAudioContext = function() {
+  [audioGarzon, audioCajera, audioGeneral].forEach(a => {
+    a.play().then(() => {
+      a.pause();
+      a.currentTime = 0;
+    }).catch(e => {});
+  });
+};
+
 // --- Firebase Listeners para Notificaciones ---
 if (typeof db !== 'undefined') {
   // Listener de conexión
@@ -139,9 +153,9 @@ if (typeof db !== 'undefined') {
       const rol = currentUser.rol;
       const arr = Notificaciones._pendientes[rol] || [];
       let prevCount = 0;
-      if (rol === 'cajero') prevCount = prevCajero;
-      else if (rol === 'bartender') prevCount = prevBartender;
-      else if (rol === 'cocinero') prevCount = prevCocinero;
+      if (rol === 'cajero' || rol === 'caja') prevCount = prevCajero;
+      else if (rol === 'bartender' || rol === 'bar') prevCount = prevBartender;
+      else if (rol === 'cocinero' || rol === 'cocina') prevCount = prevCocinero;
       else if (rol === 'garzon') prevCount = prevGarzon;
 
       if (arr.length > prevCount) {
@@ -149,22 +163,18 @@ if (typeof db !== 'undefined') {
         const lastNotif = arr[arr.length - 1];
         mostrarToast("Nueva Notificación", lastNotif.mensaje);
         
-        // Intentar reproducir sonido de notificación si es posible
+        // Reproducir sonido pre-cargado
         try {
-          let audioSrc = 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3';
-          
-          // Sonido para el garzón (pedido listo)
           if (lastNotif.tipo === 'pedido_listo' || rol === 'garzon') {
-            audioSrc = 'audio/notification.wav';
-          } 
-          // Sonido para la cajera (nuevo pedido)
-          else if (lastNotif.tipo === 'nuevo_pedido' || rol === 'cajero') {
-            audioSrc = 'audio/cajera.wav';
+            audioGarzon.volume = 1.0;
+            audioGarzon.play().catch(e => console.log('Autoplay prevent:', e));
+          } else if (lastNotif.tipo === 'nuevo_pedido' || rol === 'cajero' || rol === 'caja') {
+            audioCajera.volume = 1.0;
+            audioCajera.play().catch(e => console.log('Autoplay prevent:', e));
+          } else {
+            audioGeneral.volume = 1.0;
+            audioGeneral.play().catch(e => console.log('Autoplay prevent:', e));
           }
-          
-          const audio = new Audio(audioSrc);
-          audio.volume = 1.0;
-          audio.play().catch(e => console.log('Autoplay prevent:', e));
         } catch(e) {}
       }
       
