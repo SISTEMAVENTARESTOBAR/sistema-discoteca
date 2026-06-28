@@ -151,8 +151,15 @@ if (typeof db !== 'undefined') {
         
         // Intentar reproducir sonido de notificación si es posible
         try {
-          const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-          audio.volume = 0.5;
+          let audioSrc = 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3';
+          
+          // Usar el sonido personalizado cuando el pedido está listo para el garzón
+          if (lastNotif.tipo === 'pedido_listo' || rol === 'garzon') {
+            audioSrc = 'audio/notification.wav';
+          }
+          
+          const audio = new Audio(audioSrc);
+          audio.volume = 1.0;
           audio.play().catch(e => console.log('Autoplay prevent:', e));
         } catch(e) {}
       }
