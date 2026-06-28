@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema Discoteca — Sistema de Ventas</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=9">
+<link rel="stylesheet" href="css/styles.css?v=10">
 </head>
 <body>
 
@@ -201,13 +201,59 @@
 
       <!-- FILTROS -->
       <div class="filters-bar">
-        <div class="filter-group">
+        <div class="filter-group" style="position:relative;">
           <label>Fecha</label>
-          <select id="f-fecha" onchange="aplicarFiltros()">
-            <option value="hoy">Hoy</option>
-            <option value="semana">Esta semana</option>
-            <option value="todo">Todo</option>
-          </select>
+          <button type="button" id="f-fecha-btn" onclick="toggleDatePicker()" style="display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);color:var(--text1);padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;min-width:200px;justify-content:space-between;">
+            <span style="display:flex;align-items:center;gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M5.5 0.5V2H10.5V0.5H12V2H14H15.5V3.5V13.5C15.5 14.88 14.38 16 13 16H3C1.62 16 0.5 14.88 0.5 13.5V3.5V2H2H4V0.5H5.5ZM2 3.5H14V6H2V3.5ZM2 7.5V13.5C2 14.05 2.45 14.5 3 14.5H13C13.55 14.5 14 14.05 14 13.5V7.5H2Z"/></svg>
+              <span id="f-fecha-label">Hoy</span>
+            </span>
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor" id="f-fecha-arrow"><path d="M14.06 5.5L8.71 10.85C8.32 11.24 7.68 11.24 7.29 10.85L1.94 5.5L3 4.44L8 9.44L13 4.44L14.06 5.5Z"/></svg>
+          </button>
+          <!-- DATE PICKER POPUP -->
+          <div id="date-picker-popup" style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:999;background:var(--bg1);border:1px solid var(--border);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,0.5);min-width:340px;">
+            <!-- PRESETS -->
+            <div style="padding:10px;border-bottom:1px solid var(--border);">
+              <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                <button class="dp-preset active" onclick="dpPreset('hoy')">Hoy</button>
+                <button class="dp-preset" onclick="dpPreset('ayer')">Ayer</button>
+                <button class="dp-preset" onclick="dpPreset('7dias')">Últimos 7 días</button>
+                <button class="dp-preset" onclick="dpPreset('30dias')">Últimos 30 días</button>
+                <button class="dp-preset" onclick="dpPreset('mes')">Este mes</button>
+                <button class="dp-preset" onclick="dpPreset('todo')">Todo</button>
+              </div>
+            </div>
+            <!-- CALENDAR HEADER -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 4px;">
+              <button class="dp-nav" onclick="dpPrevMonth()">◀</button>
+              <strong id="dp-month-label" style="font-size:14px;color:var(--text1);"></strong>
+              <button class="dp-nav" onclick="dpNextMonth()">▶</button>
+            </div>
+            <!-- CALENDAR GRID -->
+            <div style="padding:6px 14px;">
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;color:var(--text3);margin-bottom:4px;font-weight:600;">
+                <div>Lu</div><div>Ma</div><div>Mi</div><div>Ju</div><div>Vi</div><div>Sá</div><div>Do</div>
+              </div>
+              <div id="dp-days-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;"></div>
+            </div>
+            <!-- DATE INPUTS -->
+            <div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;">
+              <div style="flex:1;">
+                <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">Desde</div>
+                <input type="date" id="dp-start" onchange="dpInputChange()" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text1);padding:6px 8px;border-radius:6px;font-size:12px;">
+              </div>
+              <div style="color:var(--text3);margin-top:14px;">→</div>
+              <div style="flex:1;">
+                <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">Hasta</div>
+                <input type="date" id="dp-end" onchange="dpInputChange()" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text1);padding:6px 8px;border-radius:6px;font-size:12px;">
+              </div>
+            </div>
+            <!-- APPLY -->
+            <div style="padding:8px 14px 12px;display:flex;gap:8px;">
+              <button class="btn btn-primary btn-sm" onclick="dpApply()" style="flex:1;">✅ Aplicar</button>
+              <button class="btn btn-outline btn-sm" onclick="closeDatePicker()">Cerrar</button>
+            </div>
+          </div>
         </div>
         <div class="filter-group">
           <label>Garzón</label>
@@ -669,21 +715,21 @@
 <!-- ==================== SCRIPTS ==================== -->
 <script defer src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database-compat.js"></script>
-<script defer src="js/utils.js?v=9"></script>
-<script defer src="js/database.js?v=9"></script>
-<script defer src="js/notifications.js?v=9"></script>
-<script defer src="js/auth.js?v=9"></script>
-<script defer src="js/dashboard.js?v=9"></script>
-<script defer src="js/ventas.js?v=9"></script>
-<script defer src="js/mesas.js?v=9"></script>
-<script defer src="js/pedidos.js?v=9"></script>
-<script defer src="js/caja.js?v=9"></script>
-<script defer src="js/bar.js?v=9"></script>
-<script defer src="js/cocina.js?v=9"></script>
-<script defer src="js/usuarios.js?v=9"></script>
-<script defer src="js/menu.js?v=9"></script>
-<script defer src="js/navigation.js?v=9"></script>
-<script defer src="js/app.js?v=9"></script>
+<script defer src="js/utils.js?v=10"></script>
+<script defer src="js/database.js?v=10"></script>
+<script defer src="js/notifications.js?v=10"></script>
+<script defer src="js/auth.js?v=10"></script>
+<script defer src="js/dashboard.js?v=10"></script>
+<script defer src="js/ventas.js?v=10"></script>
+<script defer src="js/mesas.js?v=10"></script>
+<script defer src="js/pedidos.js?v=10"></script>
+<script defer src="js/caja.js?v=10"></script>
+<script defer src="js/bar.js?v=10"></script>
+<script defer src="js/cocina.js?v=10"></script>
+<script defer src="js/usuarios.js?v=10"></script>
+<script defer src="js/menu.js?v=10"></script>
+<script defer src="js/navigation.js?v=10"></script>
+<script defer src="js/app.js?v=10"></script>
 
 <!-- TOAST CONTAINER -->
 <div id="toast-container" class="toast-container"></div>

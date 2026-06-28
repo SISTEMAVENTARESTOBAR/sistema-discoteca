@@ -3,8 +3,23 @@
 // Registro de ventas, anulaciones, log y cierre historial
 // ============================================================
 
+// Date picker state
+let dpCurrentMonth = new Date();
+let dpStartDate = null;
+let dpEndDate = null;
+let dpSelectingEnd = false;
+let dpActivePreset = 'hoy';
+
 function renderVentas() {
   poblarFiltroGarzon();
+  // Initialize date picker to "Hoy" on first render
+  if (!dpStartDate) {
+    const hoy = getTodayStr();
+    dpStartDate = hoy;
+    dpEndDate = hoy;
+    document.getElementById('dp-start').value = hoy;
+    document.getElementById('dp-end').value = hoy;
+  }
   aplicarFiltros();
 }
 
@@ -30,9 +45,14 @@ function aplicarFiltros() {
       hora: p.horaCreacion,
       estado: 'cobrado'
     }));
-  const hoy = getTodayStr();
-  const fecha = document.getElementById('f-fecha').value;
-  if (fecha === 'hoy') ventas = ventas.filter(v => v.fecha === hoy);
+
+  // Date range filter
+  if (dpStartDate && dpEndDate) {
+    ventas = ventas.filter(v => v.fecha >= dpStartDate && v.fecha <= dpEndDate);
+  } else if (dpStartDate) {
+    ventas = ventas.filter(v => v.fecha === dpStartDate);
+  }
+
   const garzon = document.getElementById('f-garzon').value;
   if (garzon) ventas = ventas.filter(v => v.garzonId == garzon);
   const metodo = document.getElementById('f-metodo').value;
@@ -66,12 +86,263 @@ function aplicarFiltros() {
 }
 
 function limpiarFiltros() {
-  document.getElementById('f-fecha').value = 'hoy';
+  const hoy = getTodayStr();
+  dpStartDate = hoy;
+  dpEndDate = hoy;
+  dpActivePreset = 'hoy';
+  document.getElementById('dp-start').value = hoy;
+  document.getElementById('dp-end').value = hoy;
+  document.getElementById('f-fecha-label').textContent = 'Hoy';
   document.getElementById('f-garzon').value = '';
   document.getElementById('f-metodo').value = '';
   document.getElementById('f-estado').value = '';
   document.getElementById('f-buscar').value = '';
   aplicarFiltros();
+}
+
+// ============================================================
+// DATE PICKER FUNCTIONS
+// ============================================================
+
+function toggleDatePicker() {
+  const popup = document.getElementById('date-picker-popup');
+  const isVisible = popup.style.display !== 'none';
+  if (isVisible) {
+    closeDatePicker();
+  } else {
+    popup.style.display = 'block';
+    document.getElementById('f-fecha-arrow').style.transform = 'rotate(180deg)';
+    dpRenderCalendar();
+  }
+}
+
+function closeDatePicker() {
+  document.getElementById('date-picker-popup').style.display = 'none';
+  document.getElementById('f-fecha-arrow').style.transform = '';
+}
+
+// Close when clicking outside
+document.addEventListener('click', function(e) {
+  const popup = document.getElementById('date-picker-popup');
+  const btn = document.getElementById('f-fecha-btn');
+  if (popup && btn && !popup.contains(e.target) && !btn.contains(e.target)) {
+    if (popup.style.display !== 'none') closeDatePicker();
+  }
+});
+
+function dpPreset(preset) {
+  const hoy = new Date();
+  const hoyStr = formatDateStr(hoy);
+  dpActivePreset = preset;
+
+  document.querySelectorAll('.dp-preset').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  switch (preset) {
+    case 'hoy':
+      dpStartDate = hoyStr;
+      dpEndDate = hoyStr;
+      document.getElementById('f-fecha-label').textContent = 'Hoy';
+      break;
+    case 'ayer':
+      const ayer = new Date(hoy);
+      ayer.setDate(ayer.getDate() - 1);
+      dpStartDate = formatDateStr(ayer);
+      dpEndDate = formatDateStr(ayer);
+      document.getElementById('f-fecha-label').textContent = 'Ayer';
+      break;
+    case '7dias':
+      const hace7 = new Date(hoy);
+      hace7.setDate(hace7.getDate() - 7);
+      dpStartDate = formatDateStr(hace7);
+      dpEndDate = hoyStr;
+      document.getElementById('f-fecha-label').textContent = 'Últ. 7 días';
+      break;
+    case '30dias':
+      const hace30 = new Date(hoy);
+      hace30.setDate(hace30.getDate() - 30);
+      dpStartDate = formatDateStr(hace30);
+      dpEndDate = hoyStr;
+      document.getElementById('f-fecha-label').textContent = 'Últ. 30 días';
+      break;
+    case 'mes':
+      const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+      dpStartDate = formatDateStr(inicioMes);
+      dpEndDate = hoyStr;
+      document.getElementById('f-fecha-label').textContent = 'Este mes';
+      break;
+    case 'todo':
+      dpStartDate = null;
+      dpEndDate = null;
+      document.getElementById('f-fecha-label').textContent = 'Todo';
+      break;
+  }
+
+  document.getElementById('dp-start').value = dpStartDate || '';
+  document.getElementById('dp-end').value = dpEndDate || '';
+  dpRenderCalendar();
+  aplicarFiltros();
+  closeDatePicker();
+}
+
+function formatDateStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+const MESES_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function dpRenderCalendar() {
+  const label = document.getElementById('dp-month-label');
+  label.textContent = `${MESES_ES[dpCurrentMonth.getMonth()]} ${dpCurrentMonth.getFullYear()}`;
+
+  const grid = document.getElementById('dp-days-grid');
+  grid.innerHTML = '';
+
+  const year = dpCurrentMonth.getFullYear();
+  const month = dpCurrentMonth.getMonth();
+  const firstDay = new Date(year, month, 1);
+  let startDow = firstDay.getDay();
+  if (startDow === 0) startDow = 7; // Lunes = 1
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const prevDays = new Date(year, month, 0).getDate();
+
+  const todayStr = formatDateStr(new Date());
+
+  // Previous month days
+  for (let i = startDow - 1; i > 0; i--) {
+    const dayNum = prevDays - i + 1;
+    const d = new Date(year, month - 1, dayNum);
+    const dStr = formatDateStr(d);
+    const btn = createDayBtn(dayNum, dStr, true, todayStr);
+    grid.appendChild(btn);
+  }
+
+  // Current month days
+  for (let i = 1; i <= daysInMonth; i++) {
+    const d = new Date(year, month, i);
+    const dStr = formatDateStr(d);
+    const btn = createDayBtn(i, dStr, false, todayStr);
+    grid.appendChild(btn);
+  }
+
+  // Next month fill
+  const totalCells = grid.children.length;
+  const remaining = (7 - (totalCells % 7)) % 7;
+  for (let i = 1; i <= remaining; i++) {
+    const d = new Date(year, month + 1, i);
+    const dStr = formatDateStr(d);
+    const btn = createDayBtn(i, dStr, true, todayStr);
+    grid.appendChild(btn);
+  }
+}
+
+function createDayBtn(dayNum, dateStr, isOtherMonth, todayStr) {
+  const btn = document.createElement('button');
+  btn.className = 'dp-day';
+  btn.textContent = dayNum;
+
+  if (isOtherMonth) btn.classList.add('other-month');
+  if (dateStr === todayStr && !isOtherMonth) btn.classList.add('today');
+
+  // Range highlighting
+  if (dpStartDate && dpEndDate) {
+    if (dateStr === dpStartDate && dateStr === dpEndDate) {
+      btn.classList.add('selected');
+    } else if (dateStr === dpStartDate) {
+      btn.classList.add('range-start');
+    } else if (dateStr === dpEndDate) {
+      btn.classList.add('range-end');
+    } else if (dateStr > dpStartDate && dateStr < dpEndDate) {
+      btn.classList.add('in-range');
+    }
+  } else if (dpStartDate && dateStr === dpStartDate) {
+    btn.classList.add('selected');
+  }
+
+  btn.onclick = () => dpClickDay(dateStr);
+  return btn;
+}
+
+function dpClickDay(dateStr) {
+  dpActivePreset = null;
+  document.querySelectorAll('.dp-preset').forEach(b => b.classList.remove('active'));
+
+  if (!dpStartDate || (dpStartDate && dpEndDate)) {
+    // Start new selection
+    dpStartDate = dateStr;
+    dpEndDate = null;
+    dpSelectingEnd = true;
+  } else if (dpSelectingEnd) {
+    // Set end date
+    if (dateStr < dpStartDate) {
+      dpEndDate = dpStartDate;
+      dpStartDate = dateStr;
+    } else {
+      dpEndDate = dateStr;
+    }
+    dpSelectingEnd = false;
+  }
+
+  document.getElementById('dp-start').value = dpStartDate || '';
+  document.getElementById('dp-end').value = dpEndDate || '';
+
+  if (dpStartDate && dpEndDate) {
+    updateFechaLabel();
+  }
+
+  dpRenderCalendar();
+}
+
+function dpInputChange() {
+  dpStartDate = document.getElementById('dp-start').value || null;
+  dpEndDate = document.getElementById('dp-end').value || null;
+  dpActivePreset = null;
+  document.querySelectorAll('.dp-preset').forEach(b => b.classList.remove('active'));
+  if (dpStartDate) dpCurrentMonth = new Date(dpStartDate + 'T12:00:00');
+  dpRenderCalendar();
+}
+
+function dpApply() {
+  if (!dpStartDate) dpStartDate = getTodayStr();
+  if (!dpEndDate) dpEndDate = dpStartDate;
+  document.getElementById('dp-start').value = dpStartDate;
+  document.getElementById('dp-end').value = dpEndDate;
+  updateFechaLabel();
+  aplicarFiltros();
+  closeDatePicker();
+}
+
+function updateFechaLabel() {
+  if (!dpStartDate && !dpEndDate) {
+    document.getElementById('f-fecha-label').textContent = 'Todo';
+    return;
+  }
+  if (dpStartDate === dpEndDate) {
+    const hoy = getTodayStr();
+    if (dpStartDate === hoy) {
+      document.getElementById('f-fecha-label').textContent = 'Hoy';
+    } else {
+      const parts = dpStartDate.split('-');
+      document.getElementById('f-fecha-label').textContent = `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+  } else {
+    const ps = dpStartDate.split('-');
+    const pe = dpEndDate.split('-');
+    document.getElementById('f-fecha-label').textContent = `${ps[2]}/${ps[1]} - ${pe[2]}/${pe[1]}`;
+  }
+}
+
+function dpPrevMonth() {
+  dpCurrentMonth.setMonth(dpCurrentMonth.getMonth() - 1);
+  dpRenderCalendar();
+}
+
+function dpNextMonth() {
+  dpCurrentMonth.setMonth(dpCurrentMonth.getMonth() + 1);
+  dpRenderCalendar();
 }
 
 function verDetalleVenta(id) {
