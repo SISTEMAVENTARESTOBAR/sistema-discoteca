@@ -158,6 +158,7 @@ function ejecutarConfirmarCaja() {
 }
 
 function confirmarCierre() {
+  if (!confirm('¿Estás seguro de que deseas confirmar el cierre de caja de hoy? Esta acción no se puede deshacer.')) return;
   const obs = document.getElementById('cierre-obs').value.trim();
   const hoy = getTodayStr();
   const cobradas = DB.pedidos.filter(p => p.fecha === hoy && ['caja_confirmada', 'listo', 'entregado'].includes(p.estado));
