@@ -313,10 +313,11 @@ function marcarEntregadoMesa(pedidoId) {
   };
   
   if (typeof db !== 'undefined') {
-    db.ref('pedidos/' + pedido.id).update({ estado: 'entregado' });
+    db.ref('pedidos/' + pedido.id).update({ estado: 'entregado', horaCierre: venta.horaCierre });
     db.ref('ventas/' + ventaId).set(venta);
   } else {
     pedido.estado = 'entregado';
+    pedido.horaCierre = venta.horaCierre;
     DB.ventas.push(venta);
   }
 
