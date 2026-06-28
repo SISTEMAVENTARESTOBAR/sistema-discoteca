@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema Discoteca — Sistema de Ventas</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=14">
+<link rel="stylesheet" href="css/styles.css?v=15">
 </head>
 <body>
 
@@ -251,15 +251,14 @@
               <div id="dp-days-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;"></div>
             </div>
             <!-- DATE INPUTS -->
-            <div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;">
-              <div style="flex:1;">
-                <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">Desde</div>
-                <input type="date" id="dp-start" onchange="dpInputChange()" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text1);padding:6px 8px;border-radius:6px;font-size:12px;">
+            <div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                <div style="font-size:11px;color:var(--text3);width:40px;">Desde</div>
+                <input type="date" id="dp-start" onchange="dpInputChange()" style="flex:1;background:var(--bg2);border:1px solid var(--border);color:var(--text1);padding:6px 8px;border-radius:6px;font-size:12px;">
               </div>
-              <div style="color:var(--text3);margin-top:14px;">→</div>
-              <div style="flex:1;">
-                <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">Hasta</div>
-                <input type="date" id="dp-end" onchange="dpInputChange()" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text1);padding:6px 8px;border-radius:6px;font-size:12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                <div style="font-size:11px;color:var(--text3);width:40px;">Hasta</div>
+                <input type="date" id="dp-end" onchange="dpInputChange()" style="flex:1;background:var(--bg2);border:1px solid var(--border);color:var(--text1);padding:6px 8px;border-radius:6px;font-size:12px;">
               </div>
             </div>
             <!-- APPLY -->
@@ -729,21 +728,21 @@
 <!-- ==================== SCRIPTS ==================== -->
 <script defer src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database-compat.js"></script>
-<script defer src="js/utils.js?v=14"></script>
-<script defer src="js/database.js?v=14"></script>
-<script defer src="js/notifications.js?v=14"></script>
-<script defer src="js/auth.js?v=14"></script>
-<script defer src="js/dashboard.js?v=14"></script>
-<script defer src="js/ventas.js?v=14"></script>
-<script defer src="js/mesas.js?v=14"></script>
-<script defer src="js/pedidos.js?v=14"></script>
-<script defer src="js/caja.js?v=14"></script>
-<script defer src="js/bar.js?v=14"></script>
-<script defer src="js/cocina.js?v=14"></script>
-<script defer src="js/usuarios.js?v=14"></script>
-<script defer src="js/menu.js?v=14"></script>
-<script defer src="js/navigation.js?v=14"></script>
-<script defer src="js/app.js?v=14"></script>
+<script defer src="js/utils.js?v=15"></script>
+<script defer src="js/database.js?v=15"></script>
+<script defer src="js/notifications.js?v=15"></script>
+<script defer src="js/auth.js?v=15"></script>
+<script defer src="js/dashboard.js?v=15"></script>
+<script defer src="js/ventas.js?v=15"></script>
+<script defer src="js/mesas.js?v=15"></script>
+<script defer src="js/pedidos.js?v=15"></script>
+<script defer src="js/caja.js?v=15"></script>
+<script defer src="js/bar.js?v=15"></script>
+<script defer src="js/cocina.js?v=15"></script>
+<script defer src="js/usuarios.js?v=15"></script>
+<script defer src="js/menu.js?v=15"></script>
+<script defer src="js/navigation.js?v=15"></script>
+<script defer src="js/app.js?v=15"></script>
 
 <!-- TOAST CONTAINER -->
 <div id="toast-container" class="toast-container"></div>
