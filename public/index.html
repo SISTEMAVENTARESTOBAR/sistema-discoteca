@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema Discoteca — Sistema de Ventas</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=16">
+<link rel="stylesheet" href="css/styles.css?v=17">
 </head>
 <body>
 
@@ -53,7 +53,11 @@
         <span id="sync-dot" style="width:8px;height:8px;border-radius:50%;background:#4caf50;"></span>
         <span id="sync-text">Sincronizado</span>
       </div>
-      <button onclick="toggleTheme()" style="background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--text2);font-size:18px;" id="topbar-theme-btn">☀️</button>
+      <div class="theme-switch" onclick="toggleTheme()">
+        <div class="ts-indicator"></div>
+        <div class="ts-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg></div>
+        <div class="ts-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></div>
+      </div>
       <div class="topbar-user" id="topbar-avatar">A</div>
     </div>
   </div>
@@ -81,9 +85,10 @@
     </div>
     <nav class="drawer-nav" id="drawer-nav"></nav>
     <div class="drawer-bottom">
-      <div class="theme-toggle" onclick="toggleTheme();closeDrawer();">
-        <span id="drawer-theme-icon">☀️</span>
-        <span id="drawer-theme-label">Modo claro</span>
+      <div class="theme-switch" onclick="toggleTheme();closeDrawer();">
+        <div class="ts-indicator"></div>
+        <div class="ts-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg></div>
+        <div class="ts-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></div>
       </div>
       <button class="logout-btn" onclick="doLogout()">🚪 Cerrar sesión</button>
     </div>
@@ -111,9 +116,10 @@
     </div>
     <nav id="sidebar-nav"></nav>
     <div class="sidebar-bottom">
-      <div class="theme-toggle" onclick="toggleTheme()">
-        <span id="theme-icon">☀️</span>
-        <span id="theme-label">Modo claro</span>
+      <div class="theme-switch" onclick="toggleTheme()">
+        <div class="ts-indicator"></div>
+        <div class="ts-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg></div>
+        <div class="ts-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></div>
       </div>
       <button class="logout-btn" onclick="doLogout()">🚪 Cerrar sesión</button>
     </div>
@@ -728,21 +734,21 @@
 <!-- ==================== SCRIPTS ==================== -->
 <script defer src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database-compat.js"></script>
-<script defer src="js/utils.js?v=16"></script>
-<script defer src="js/database.js?v=16"></script>
-<script defer src="js/notifications.js?v=16"></script>
-<script defer src="js/auth.js?v=16"></script>
-<script defer src="js/dashboard.js?v=16"></script>
-<script defer src="js/ventas.js?v=16"></script>
-<script defer src="js/mesas.js?v=16"></script>
-<script defer src="js/pedidos.js?v=16"></script>
-<script defer src="js/caja.js?v=16"></script>
-<script defer src="js/bar.js?v=16"></script>
-<script defer src="js/cocina.js?v=16"></script>
-<script defer src="js/usuarios.js?v=16"></script>
-<script defer src="js/menu.js?v=16"></script>
-<script defer src="js/navigation.js?v=16"></script>
-<script defer src="js/app.js?v=16"></script>
+<script defer src="js/utils.js?v=17"></script>
+<script defer src="js/database.js?v=17"></script>
+<script defer src="js/notifications.js?v=17"></script>
+<script defer src="js/auth.js?v=17"></script>
+<script defer src="js/dashboard.js?v=17"></script>
+<script defer src="js/ventas.js?v=17"></script>
+<script defer src="js/mesas.js?v=17"></script>
+<script defer src="js/pedidos.js?v=17"></script>
+<script defer src="js/caja.js?v=17"></script>
+<script defer src="js/bar.js?v=17"></script>
+<script defer src="js/cocina.js?v=17"></script>
+<script defer src="js/usuarios.js?v=17"></script>
+<script defer src="js/menu.js?v=17"></script>
+<script defer src="js/navigation.js?v=17"></script>
+<script defer src="js/app.js?v=17"></script>
 
 <!-- TOAST CONTAINER -->
 <div id="toast-container" class="toast-container"></div>

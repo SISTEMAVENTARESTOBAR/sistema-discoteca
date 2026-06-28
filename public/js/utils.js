@@ -57,11 +57,7 @@ function closeModal(id) {
 function toggleTheme() {
   document.body.classList.toggle('light-mode');
   const isLight = document.body.classList.contains('light-mode');
-  document.getElementById('theme-icon').textContent = isLight ? '🌙' : '☀️';
-  document.getElementById('theme-label').textContent = isLight ? 'Modo oscuro' : 'Modo claro';
-  document.getElementById('drawer-theme-icon').textContent = isLight ? '🌙' : '☀️';
-  document.getElementById('drawer-theme-label').textContent = isLight ? 'Modo oscuro' : 'Modo claro';
-  document.getElementById('topbar-theme-btn').textContent = isLight ? '🌙' : '☀️';
+  localStorage.setItem('sys_theme', isLight ? 'light' : 'dark');
 }
 
 function rolLabel(rol) {
