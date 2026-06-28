@@ -6,7 +6,7 @@
 let confirmarCajaVentaId = null;
 
 function renderCaja() {
-  if (currentUser.rol !== 'caja' && currentUser.rol !== 'admin') {
+  if (currentUser.rol !== 'cajero' && currentUser.rol !== 'caja' && currentUser.rol !== 'admin') {
     document.getElementById('caja-cobros').innerHTML = '<div style="padding:20px;color:red;text-align:center;">Acceso Denegado</div>';
     return;
   }
@@ -215,7 +215,7 @@ function renderCajaHistorial() {
 }
 
 function rechazarPedidoCaja(pedidoId) {
-  if (currentUser.rol !== 'caja' && currentUser.rol !== 'admin') { alert('Acceso denegado'); return; }
+  if (currentUser.rol !== 'cajero' && currentUser.rol !== 'caja' && currentUser.rol !== 'admin') { alert('Acceso denegado'); return; }
   const motivo = prompt('Motivo del rechazo:');
   if (!motivo) return;
 
