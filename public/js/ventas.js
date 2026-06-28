@@ -37,14 +37,7 @@ function poblarFiltroGarzon() {
 }
 
 function aplicarFiltros() {
-  let ventas = DB.pedidos
-    .filter(p => ['caja_confirmada', 'listo', 'entregado'].includes(p.estado))
-    .map(p => ({
-      ...p,
-      mesa: p.mesaNum,
-      hora: p.horaCreacion,
-      estado: 'cobrado'
-    }));
+  let ventas = [...DB.ventas];
 
   // Date range filter
   if (dpStartDate && dpEndDate) {
