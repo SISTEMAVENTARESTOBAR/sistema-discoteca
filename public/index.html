@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema Discoteca — Sistema de Ventas</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=19">
+<link rel="stylesheet" href="css/styles.css?v=20">
 </head>
 <body>
 
@@ -352,9 +352,18 @@
 
     <!-- ===== PÁGINA: LOG DE ACCIONES ===== -->
     <div class="page" id="page-log">
-      <div class="page-header">
-        <h2>Log de Acciones</h2>
-        <p>Registro de cada acción realizada en el sistema</p>
+      <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap;">
+        <div>
+          <h2>Log de Acciones</h2>
+          <p>Registro de cada acción realizada en el sistema</p>
+        </div>
+        <div class="search-dock-container">
+          <label class="search-dock">
+            <svg class="sd-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="log-search-input" class="sd-input" placeholder="Buscar garzón, pedido o producto..." oninput="renderLog()">
+            <span class="sd-kb">⌘K</span>
+          </label>
+        </div>
       </div>
       <div class="card">
         <div id="log-list"></div>
@@ -734,21 +743,21 @@
 <!-- ==================== SCRIPTS ==================== -->
 <script defer src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database-compat.js"></script>
-<script defer src="js/utils.js?v=19"></script>
-<script defer src="js/database.js?v=19"></script>
-<script defer src="js/notifications.js?v=19"></script>
-<script defer src="js/auth.js?v=19"></script>
-<script defer src="js/dashboard.js?v=19"></script>
-<script defer src="js/ventas.js?v=19"></script>
-<script defer src="js/mesas.js?v=19"></script>
-<script defer src="js/pedidos.js?v=19"></script>
-<script defer src="js/caja.js?v=19"></script>
-<script defer src="js/bar.js?v=19"></script>
-<script defer src="js/cocina.js?v=19"></script>
-<script defer src="js/usuarios.js?v=19"></script>
-<script defer src="js/menu.js?v=19"></script>
-<script defer src="js/navigation.js?v=19"></script>
-<script defer src="js/app.js?v=19"></script>
+<script defer src="js/utils.js?v=20"></script>
+<script defer src="js/database.js?v=20"></script>
+<script defer src="js/notifications.js?v=20"></script>
+<script defer src="js/auth.js?v=20"></script>
+<script defer src="js/dashboard.js?v=20"></script>
+<script defer src="js/ventas.js?v=20"></script>
+<script defer src="js/mesas.js?v=20"></script>
+<script defer src="js/pedidos.js?v=20"></script>
+<script defer src="js/caja.js?v=20"></script>
+<script defer src="js/bar.js?v=20"></script>
+<script defer src="js/cocina.js?v=20"></script>
+<script defer src="js/usuarios.js?v=20"></script>
+<script defer src="js/menu.js?v=20"></script>
+<script defer src="js/navigation.js?v=20"></script>
+<script defer src="js/app.js?v=20"></script>
 
 <!-- TOAST CONTAINER -->
 <div id="toast-container" class="toast-container"></div>

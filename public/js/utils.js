@@ -30,6 +30,7 @@ function getMinutesAgo(horaStr) {
 function addLog(accion) {
   if (typeof db !== 'undefined') {
     db.ref('log').push({
+      fecha: getTodayStr(),
       hora: getTimeStr(),
       usuario: currentUser.nombre,
       rol: currentUser.rol,
@@ -38,6 +39,7 @@ function addLog(accion) {
   } else {
     // Fallback if db is not loaded yet
     DB.log.push({
+      fecha: getTodayStr(),
       hora: getTimeStr(),
       usuario: currentUser.nombre,
       rol: currentUser.rol,

@@ -407,16 +407,75 @@ function renderLog() {
     list.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>Sin registros</p></div>';
     return;
   }
-  list.innerHTML = [...DB.log].reverse().map(l => `
-    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
-      <div style="font-size:12px;color:var(--text3);min-width:50px;">${l.hora}</div>
-      <div style="width:8px;height:8px;border-radius:50%;background:${rolColor(l.rol)};flex-shrink:0;"></div>
-      <div style="flex:1;">
-        <strong style="font-size:13px;">${l.usuario}</strong>
-        <span style="font-size:12px;color:var(--text2);margin-left:6px;">${l.accion}</span>
+
+  // Apply search filter
+  const searchInput = document.getElementById('log-search-input');
+  const searchTerms = searchInput ? searchInput.value.toLowerCase().split(' ').filter(x => x) : [];
+  
+  let logsToRender = [...DB.log].reverse();
+  
+  if (searchTerms.length > 0) {
+    logsToRender = logsToRender.filter(l => {
+      const text = `${l.usuario} ${l.accion}`.toLowerCase();
+      return searchTerms.every(t => text.includes(t));
+    });
+  }
+
+  if (logsToRender.length === 0) {
+    list.innerHTML = '<div class="empty-state"><p>No se encontraron resultados</p></div>';
+    return;
+  }
+  
+  const todayStr = getTodayStr();
+  const groupsOrder = [];
+  const groups = {};
+  
+  logsToRender.forEach(l => {
+    const f = l.fecha || todayStr;
+    if (!groups[f]) {
+      groups[f] = [];
+      groupsOrder.push(f);
+    }
+    groups[f].push(l);
+  });
+  
+  let html = '';
+  
+  groupsOrder.forEach(date => {
+    const isToday = date === todayStr;
+    
+    // Parse DD/MM/YYYY to friendly date
+    const parts = date.split('/');
+    let dateLabel = date;
+    if (parts.length === 3) {
+      const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+      const day = parseInt(parts[0], 10);
+      const month = months[parseInt(parts[1], 10) - 1];
+      dateLabel = `${day} de ${month}`;
+    }
+    if (isToday) dateLabel = 'Hoy, ' + dateLabel;
+    
+    html += `
+      <div class="log-date-divider" style="margin:20px 0 10px;text-align:center;color:var(--text3);font-size:12px;display:flex;align-items:center;gap:12px;">
+        <div style="flex:1;height:1px;background:var(--border);"></div>
+        <span style="font-weight:600;letter-spacing:1px;text-transform:uppercase;">${dateLabel}</span>
+        <div style="flex:1;height:1px;background:var(--border);"></div>
       </div>
-      <span style="font-size:11px;color:var(--text3);background:var(--bg2);padding:2px 8px;border-radius:6px;">${rolLabel(l.rol)}</span>
-    </div>`).join('');
+    `;
+    
+    html += groups[date].map(l => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+        <div style="font-size:12px;color:var(--text3);min-width:40px;">${l.hora}</div>
+        <div style="width:10px;height:10px;border-radius:50%;background:${rolColor(l.rol)};flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <strong style="font-size:13px;">${l.usuario}</strong>
+          <span style="font-size:12px;color:var(--text2);margin-left:6px;">${l.accion}</span>
+        </div>
+        <span style="font-size:11px;color:var(--text3);background:var(--bg2);padding:2px 8px;border-radius:6px;border:1px solid var(--border);">${rolLabel(l.rol)}</span>
+      </div>`).join('');
+  });
+  
+  list.innerHTML = html;
 }
 
 // ============================================================
