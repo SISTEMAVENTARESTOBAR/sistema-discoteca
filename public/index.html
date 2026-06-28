@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema Discoteca — Sistema de Ventas</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=11">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=12">
 </head>
 <body>
 
@@ -131,23 +131,31 @@
       <div class="stats-grid">
         <div class="stat-card purple">
           <div class="stat-icon">💰</div>
-          <div class="stat-value" id="stat-total">Bs. 0</div>
-          <div class="stat-label">Total ventas hoy</div>
+          <div>
+            <div class="stat-value" id="stat-total">Bs. 0</div>
+            <div class="stat-label">Total ventas hoy</div>
+          </div>
         </div>
         <div class="stat-card green">
           <div class="stat-icon">💵</div>
-          <div class="stat-value" id="stat-efectivo">Bs. 0</div>
-          <div class="stat-label">Efectivo cobrado</div>
+          <div>
+            <div class="stat-value" id="stat-efectivo">Bs. 0</div>
+            <div class="stat-label">Efectivo cobrado</div>
+          </div>
         </div>
         <div class="stat-card blue">
           <div class="stat-icon">📱</div>
-          <div class="stat-value" id="stat-qr">Bs. 0</div>
-          <div class="stat-label">QR cobrado</div>
+          <div>
+            <div class="stat-value" id="stat-qr">Bs. 0</div>
+            <div class="stat-label">QR cobrado</div>
+          </div>
         </div>
         <div class="stat-card red">
           <div class="stat-icon">⚠️</div>
-          <div class="stat-value" id="stat-alertas">0</div>
-          <div class="stat-label">Alertas activas</div>
+          <div>
+            <div class="stat-value" id="stat-alertas">0</div>
+            <div class="stat-label">Alertas activas</div>
+          </div>
         </div>
       </div>
 
@@ -184,18 +192,24 @@
       <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
         <div class="stat-card green">
           <div class="stat-icon">💰</div>
-          <div class="stat-value" id="v-total">Bs. 0</div>
-          <div class="stat-label">Total filtrado</div>
+          <div>
+            <div class="stat-value" id="v-total">Bs. 0</div>
+            <div class="stat-label">Total filtrado</div>
+          </div>
         </div>
         <div class="stat-card green">
           <div class="stat-icon">💵</div>
-          <div class="stat-value" id="v-efectivo">Bs. 0</div>
-          <div class="stat-label">Efectivo</div>
+          <div>
+            <div class="stat-value" id="v-efectivo">Bs. 0</div>
+            <div class="stat-label">Efectivo</div>
+          </div>
         </div>
         <div class="stat-card blue">
           <div class="stat-icon">📱</div>
-          <div class="stat-value" id="v-qr">Bs. 0</div>
-          <div class="stat-label">QR</div>
+          <div>
+            <div class="stat-value" id="v-qr">Bs. 0</div>
+            <div class="stat-label">QR</div>
+          </div>
         </div>
       </div>
 
@@ -715,21 +729,21 @@
 <!-- ==================== SCRIPTS ==================== -->
 <script defer src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database-compat.js"></script>
-<script defer src="js/utils.js?v=11"></script>
-<script defer src="js/database.js?v=11"></script>
-<script defer src="js/notifications.js?v=11"></script>
-<script defer src="js/auth.js?v=11"></script>
-<script defer src="js/dashboard.js?v=11"></script>
-<script defer src="js/ventas.js?v=11"></script>
-<script defer src="js/mesas.js?v=11"></script>
-<script defer src="js/pedidos.js?v=11"></script>
-<script defer src="js/caja.js?v=11"></script>
-<script defer src="js/bar.js?v=11"></script>
-<script defer src="js/cocina.js?v=11"></script>
-<script defer src="js/usuarios.js?v=11"></script>
-<script defer src="js/menu.js?v=11"></script>
-<script defer src="js/navigation.js?v=11"></script>
-<script defer src="js/app.js?v=11"></script>
+<script defer src="js/utils.js?v=12"></script>
+<script defer src="js/database.js?v=12"></script>
+<script defer src="js/notifications.js?v=12"></script>
+<script defer src="js/auth.js?v=12"></script>
+<script defer src="js/dashboard.js?v=12"></script>
+<script defer src="js/ventas.js?v=12"></script>
+<script defer src="js/mesas.js?v=12"></script>
+<script defer src="js/pedidos.js?v=12"></script>
+<script defer src="js/caja.js?v=12"></script>
+<script defer src="js/bar.js?v=12"></script>
+<script defer src="js/cocina.js?v=12"></script>
+<script defer src="js/usuarios.js?v=12"></script>
+<script defer src="js/menu.js?v=12"></script>
+<script defer src="js/navigation.js?v=12"></script>
+<script defer src="js/app.js?v=12"></script>
 
 <!-- TOAST CONTAINER -->
 <div id="toast-container" class="toast-container"></div>
