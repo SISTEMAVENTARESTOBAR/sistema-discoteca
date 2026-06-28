@@ -922,12 +922,12 @@ tbody tr:hover td { background: var(--bg2); }
 
 /* ===================== DATE PICKER ===================== */
 .dp-preset {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  color: var(--text2);
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7);
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 11px;
   cursor: pointer;
   transition: all 0.2s;
   font-weight: 500;
@@ -944,13 +944,13 @@ tbody tr:hover td { background: var(--bg2); }
 }
 .dp-nav {
   background: none;
-  border: 1px solid var(--border);
-  color: var(--text2);
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -962,24 +962,23 @@ tbody tr:hover td { background: var(--bg2); }
 }
 .dp-day {
   width: 100%;
-  aspect-ratio: 1;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: 6px;
+  font-size: 12px;
   cursor: pointer;
   transition: all 0.15s;
   border: none;
   background: none;
-  color: var(--text1);
+  color: rgba(255,255,255,0.85);
 }
 .dp-day:hover {
-  background: var(--bg2);
+  background: rgba(255,255,255,0.1);
 }
 .dp-day.other-month {
-  color: var(--text3);
-  opacity: 0.4;
+  color: rgba(255,255,255,0.2);
 }
 .dp-day.today {
   background: var(--accent);
@@ -992,17 +991,17 @@ tbody tr:hover td { background: var(--bg2); }
   font-weight: 700;
 }
 .dp-day.in-range {
-  background: rgba(168, 85, 247, 0.15);
+  background: rgba(168, 85, 247, 0.2);
   border-radius: 0;
 }
 .dp-day.range-start {
-  border-radius: 8px 0 0 8px;
+  border-radius: 6px 0 0 6px;
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   color: #fff;
   font-weight: 700;
 }
 .dp-day.range-end {
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 6px 6px 0;
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   color: #fff;
   font-weight: 700;
