@@ -153,9 +153,13 @@ if (typeof db !== 'undefined') {
         try {
           let audioSrc = 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3';
           
-          // Usar el sonido personalizado cuando el pedido está listo para el garzón
+          // Sonido para el garzón (pedido listo)
           if (lastNotif.tipo === 'pedido_listo' || rol === 'garzon') {
             audioSrc = 'audio/notification.wav';
+          } 
+          // Sonido para la cajera (nuevo pedido)
+          else if (lastNotif.tipo === 'nuevo_pedido' || rol === 'cajero') {
+            audioSrc = 'audio/cajera.wav';
           }
           
           const audio = new Audio(audioSrc);
