@@ -346,9 +346,8 @@ function dpNextMonth() {
 }
 
 function verDetalleVenta(id) {
-  const p = DB.pedidos.find(x => x.id === id);
-  if (!p) return;
-  const v = { ...p, mesa: p.mesaNum, hora: p.horaCreacion, estado: 'cobrado' };
+  const v = DB.ventas.find(x => x.id === id);
+  if (!v) return;
   document.getElementById('modal-detalle-title').textContent = `Venta #${String(v.id).padStart(4, '0')}`;
   document.getElementById('modal-detalle-body').innerHTML = `
     <div style="margin-bottom:16px;">
