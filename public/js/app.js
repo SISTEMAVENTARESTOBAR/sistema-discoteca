@@ -72,9 +72,11 @@ function initAllIcons() {
   setStatIcon('stat-icon-2', 'cash', 'icon-success');
   setStatIcon('stat-icon-3', 'smartphone', 'icon-info');
   setStatIcon('stat-icon-4', 'alertTriangle', 'icon-danger');
-  setStatIcon('stat-icon-5', 'dollarSign', 'icon-success');
-  setStatIcon('stat-icon-6', 'cash', 'icon-success');
-  setStatIcon('stat-icon-7', 'smartphone', 'icon-info');
+  setStatIcon('stat-icon-5', 'shoppingCart', 'icon-accent');
+  setStatIcon('stat-icon-6', 'table', 'icon-info');
+  setStatIcon('stat-icon-7', 'clock', 'icon-warning');
+  setStatIcon('stat-icon-8', 'trendingUp', 'icon-success');
+  setStatIcon('stat-icon-9', 'creditCard', 'icon-info');
 
   // Alert icons
   const setAlertIcon = (id, iconName, cls) => {
@@ -85,7 +87,7 @@ function initAllIcons() {
 
   // Cierre title icon
   const cierreTitle = document.getElementById('cierre-title');
-  if (cierreTitle) cierreTitle.innerHTML = `${sizedSvg('lock', 16)} Cierre de Caja`;
+  if (cierreTitle) cierreTitle.innerHTML = `${sizedSvg('lock', 16)} Resumen del Turno`;
 
   // Cierre confirm button
   const btnCierre = document.getElementById('btn-confirmar-cierre');
@@ -126,6 +128,7 @@ function initAllIcons() {
 // --- Inicialización al cargar la página ---
 document.addEventListener('DOMContentLoaded', () => {
   initAllIcons();
+  registerServiceWorker();
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') {
@@ -160,3 +163,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, 300);
 });
+
+async function registerServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js');
+      console.log('[SW] Registrado:', registration.scope);
+      
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            mostrarToast('Actualización disponible', 'Recarga la página para aplicar cambios');
+          }
+        });
+      });
+      
+      // Request push permission
+      if ('Notification' in window && Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        console.log('[Push] Permiso:', permission);
+      }
+    } catch (err) {
+      console.error('[SW] Error registro:', err);
+    }
+  }
+  
+  // Detect online/offline
+  window.addEventListener('online', () => updateSyncStatus(true));
+  window.addEventListener('offline', () => updateSyncStatus(false));
+}

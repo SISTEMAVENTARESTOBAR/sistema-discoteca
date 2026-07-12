@@ -1,5 +1,6 @@
 // ============================================================
 // AUTENTICACIÓN — Sistema Discoteca
+// Login local con usuarios de Firebase Realtime DB
 // ============================================================
 
 let currentUser = null;
@@ -50,4 +51,5 @@ function doLogout() {
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').style.display = 'none';
 }

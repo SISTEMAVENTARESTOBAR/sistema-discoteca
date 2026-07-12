@@ -24,7 +24,7 @@ const NAV_CONFIG = {
     ]},
     { section: 'Reportes', items: [
       { icon: NAV_ICONS.log, label: 'Log de acciones', page: 'page-log' },
-      { icon: NAV_ICONS.cierre, label: 'Cierre de caja', page: 'page-cierre' },
+      { icon: NAV_ICONS.cierre, label: 'Cierres de caja', page: 'page-cierre' },
     ]},
     { section: 'Configuración', items: [
       { icon: NAV_ICONS.users, label: 'Usuarios', page: 'page-usuarios' },
@@ -132,7 +132,7 @@ function renderPage(pageId) {
   if (pageId === 'page-ventas') renderVentas();
   if (pageId === 'page-anulaciones') renderAnulaciones();
   if (pageId === 'page-log') renderLog();
-  if (pageId === 'page-cierre') renderCierreHistorial();
+  if (pageId === 'page-cierre') renderTurnosHistorial();
   if (pageId === 'page-usuarios') renderUsuarios();
   if (pageId === 'page-menu') renderMenu();
   if (pageId === 'page-mesas-garzon') renderMesasGarzon();

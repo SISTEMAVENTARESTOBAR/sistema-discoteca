@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema Discoteca — Sistema de Ventas</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#7c5cfc">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=51">
+<link rel="stylesheet" href="css/styles.css?v=50">
 </head>
 <body>
 
@@ -161,6 +163,41 @@
           <div>
             <div class="stat-value" id="stat-alertas">0</div>
             <div class="stat-label">Alertas activas</div>
+          </div>
+        </div>
+        <div class="stat-card" style="grid-column: span 2;">
+          <div class="stat-icon" id="stat-icon-5"></div>
+          <div>
+            <div class="stat-value" id="stat-pedidos-activos">0</div>
+            <div class="stat-label">Pedidos activos</div>
+          </div>
+        </div>
+        <div class="stat-card" style="grid-column: span 2;">
+          <div class="stat-icon" id="stat-icon-6"></div>
+          <div>
+            <div class="stat-value" id="stat-mesas">0 <span id="stat-mesas-total"></span></div>
+            <div class="stat-label">Mesas ocupadas / totales</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" id="stat-icon-7"></div>
+          <div>
+            <div class="stat-value" id="stat-colas" style="font-size:14px;">Caja: 0 Bar: 0 Cocina: 0</div>
+            <div class="stat-label">Colas de preparación</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" id="stat-icon-8"></div>
+          <div>
+            <div class="stat-value" id="stat-ventas-min">Bs. 0/min</div>
+            <div class="stat-label">Ventas último minuto</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" id="stat-icon-9"></div>
+          <div>
+            <div class="stat-value" id="stat-ticket-prom">Bs. 0</div>
+            <div class="stat-label">Ticket promedio</div>
           </div>
         </div>
       </div>
@@ -481,28 +518,25 @@
             <h2>Panel de Caja</h2>
             <p>Cobros pendientes de confirmación</p>
           </div>
-          <button class="btn btn-primary" onclick="openPedidoCaja()"><span class="icon" style="width:16px;height:16px;margin-right:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>Nuevo Pedido</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="openPedidoCaja()" id="btn-nuevo-pedido-caja"><span class="icon" style="width:16px;height:16px;margin-right:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>Nuevo Pedido</button>
+          </div>
         </div>
       </div>
       <div id="caja-cobros"></div>
       <div class="divider"></div>
-      <h3 style="font-size:15px;margin-bottom:12px;" id="cierre-title">Cierre de Caja</h3>
+      <h3 style="font-size:15px;margin-bottom:12px;" id="cierre-title">Resumen del Turno</h3>
       <div class="card" id="cierre-form-card">
         <div class="cierre-summary cierre-summary-vertical" id="cierre-summary-data"></div>
-        <div class="form-group">
-          <label>Observaciones</label>
-          <textarea id="cierre-obs" rows="3" placeholder="Notas del cierre..."></textarea>
-        </div>
-        <button class="btn btn-primary" style="width:auto;" onclick="confirmarCierre()" id="btn-confirmar-cierre">Confirmar cierre de caja</button>
       </div>
     </div>
 
     <div class="page" id="page-caja-historial">
       <div class="page-header">
-        <h2>Historial de Caja</h2>
-        <p>Cobros confirmados el día de hoy</p>
+        <h2>Historial de Turnos</h2>
+        <p>Cierres de turnos registrados</p>
       </div>
-      <div id="historial-caja-list"></div>
+      <div id="cierre-historial"></div>
     </div>
 
   </div>

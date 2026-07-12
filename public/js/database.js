@@ -32,8 +32,10 @@ const DB = {
   anulaciones: [],
   log: [],
   cierres: [],
+  turnos: [],
   nextPedidoId: 1,
   nextVentaId: 1,
+  currentTurnoId: null,
 };
 
 // --- Firebase Listeners ---
@@ -87,6 +89,15 @@ db.ref('cierres').on('value', snap => {
   if (document.getElementById('page-cierre')?.classList.contains('active')) renderCierreHistorial();
 });
 
+db.ref('turnos').on('value', snap => {
+  DB.turnos = snap.val() ? Object.values(snap.val()).filter(Boolean) : [];
+  // Find current open shift
+  const abierto = DB.turnos.find(t => t.estado === 'abierto');
+  DB.currentTurnoId = abierto ? abierto.id : null;
+  if (document.getElementById('page-caja')?.classList.contains('active')) renderCaja();
+  if (document.getElementById('page-cierre')?.classList.contains('active')) renderCierreHistorial();
+});
+
 // Helper for initial population if DB is empty
 db.ref('/').once('value', snap => {
   if (!snap.val()) {
@@ -104,7 +115,8 @@ db.ref('/').once('value', snap => {
         "10": { id: 10, nombre: 'Cubalibre', precio: 35, categoria: 'Tragos', activo: true },
         "13": { id: 13, nombre: 'Hamburguesa', precio: 35, categoria: 'Comida', activo: true }
       },
-      mesas: DB.mesas.reduce((acc, m) => { acc[m.id] = m; return acc; }, {})
+      mesas: DB.mesas.reduce((acc, m) => { acc[m.id] = m; return acc; }, {}),
+      turnos: {}
     };
     db.ref('/').set(initData);
   }
