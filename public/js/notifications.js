@@ -50,6 +50,18 @@ const Notificaciones = {
     else this._pendientes.garzon.push(data);
   },
 
+  notificarPedidoCajaDisponible(pedido) {
+    const nombre = pedido.clienteNombre ? `Cliente: ${pedido.clienteNombre}` : 'Cliente mostrador';
+    const data = {
+      tipo: 'pedido_caja_disponible',
+      mensaje: `📋 Pedido en caja — ${nombre} — Bs. ${pedido.total}`,
+      pedidoId: pedido.id,
+      hora: getTimeStr()
+    };
+    if (typeof db !== 'undefined') db.ref('notificaciones/garzon').push(data);
+    else this._pendientes.garzon.push(data);
+  },
+
   obtenerPendientes(rol) {
     return this._pendientes[rol] || [];
   },
@@ -70,18 +82,19 @@ function mostrarToast(titulo, mensaje) {
   if (!container) return;
   const toast = document.createElement('div');
   toast.className = 'toast';
-  toast.innerHTML = `<div class="toast-title">🔔 ${titulo}</div><div class="toast-msg">${mensaje}</div>`;
+  toast.innerHTML = `<div class="toast-title">${titulo}</div><div class="toast-msg">${mensaje}</div>`;
   container.appendChild(toast);
   
-  // Animar entrada
   requestAnimationFrame(() => {
-    toast.classList.add('show');
+    requestAnimationFrame(() => {
+      toast.classList.add('show');
+    });
   });
   
-  // Remover después de 4 segundos
   setTimeout(() => {
     toast.classList.remove('show');
-    setTimeout(() => toast.remove(), 300);
+    toast.classList.add('toast-exit');
+    setTimeout(() => toast.remove(), 400);
   }, 4000);
 }
 
@@ -125,63 +138,42 @@ window.unlockAudioContext = function() {
   });
 };
 
+function _reproducirSonidoNotif(tipo, rol) {
+  try {
+    if (tipo === 'pedido_listo' || rol === 'garzon') {
+      audioGarzon.volume = 1.0;
+      audioGarzon.play().catch(e => {});
+    } else if (tipo === 'nuevo_pedido' || rol === 'cajero') {
+      audioCajera.volume = 1.0;
+      audioCajera.play().catch(e => {});
+    } else {
+      audioGeneral.volume = 1.0;
+      audioGeneral.play().catch(e => {});
+    }
+  } catch(e) {}
+}
+
+function _escucharNotificaciones(rol, ruta) {
+  db.ref('notificaciones/' + ruta).on('child_added', snap => {
+    const notif = snap.val();
+    if (!notif) return;
+    if (typeof currentUser !== 'undefined' && currentUser && currentUser.rol === rol) {
+      Notificaciones._pendientes[rol].push(notif);
+      mostrarToast('Nueva Notificación', notif.mensaje);
+      _reproducirSonidoNotif(notif.tipo, rol);
+    }
+    snap.ref.remove().catch(e => console.error('Error limpiando notificación:', e));
+  });
+}
+
 // --- Firebase Listeners para Notificaciones ---
 if (typeof db !== 'undefined') {
-  // Listener de conexión
   db.ref('.info/connected').on('value', snap => {
     updateSyncStatus(snap.val() === true);
   });
 
-  db.ref('notificaciones').on('value', snap => {
-    const data = snap.val() || {};
-    
-    const prevCajero = Notificaciones._pendientes.cajero.length;
-    const prevBartender = Notificaciones._pendientes.bartender.length;
-    const prevCocinero = Notificaciones._pendientes.cocinero.length;
-    const prevGarzon = Notificaciones._pendientes.garzon.length;
-
-    Notificaciones._pendientes = {
-      cajero: data.cajero ? Object.values(data.cajero) : [],
-      bartender: data.bartender ? Object.values(data.bartender) : [],
-      cocinero: data.cocinero ? Object.values(data.cocinero) : [],
-      garzon: data.garzon ? Object.values(data.garzon) : [],
-      admin: data.admin ? Object.values(data.admin) : []
-    };
-    
-    // Si hay un usuario logueado, chequear si hay notificaciones nuevas para su rol
-    if (typeof currentUser !== 'undefined' && currentUser) {
-      const rol = currentUser.rol;
-      const arr = Notificaciones._pendientes[rol] || [];
-      let prevCount = 0;
-      if (rol === 'cajero' || rol === 'caja') prevCount = prevCajero;
-      else if (rol === 'bartender' || rol === 'bar') prevCount = prevBartender;
-      else if (rol === 'cocinero' || rol === 'cocina') prevCount = prevCocinero;
-      else if (rol === 'garzon') prevCount = prevGarzon;
-
-      if (arr.length > prevCount) {
-        // Mostrar toast del último elemento
-        const lastNotif = arr[arr.length - 1];
-        mostrarToast("Nueva Notificación", lastNotif.mensaje);
-        
-        // Reproducir sonido pre-cargado
-        try {
-          if (lastNotif.tipo === 'pedido_listo' || rol === 'garzon') {
-            audioGarzon.volume = 1.0;
-            audioGarzon.play().catch(e => console.log('Autoplay prevent:', e));
-          } else if (lastNotif.tipo === 'nuevo_pedido' || rol === 'cajero' || rol === 'caja') {
-            audioCajera.volume = 1.0;
-            audioCajera.play().catch(e => console.log('Autoplay prevent:', e));
-          } else {
-            audioGeneral.volume = 1.0;
-            audioGeneral.play().catch(e => console.log('Autoplay prevent:', e));
-          }
-        } catch(e) {}
-      }
-      
-      // Actualizar badges UI
-      if (typeof renderNotificationBadge === 'function') {
-        renderNotificationBadge(rol);
-      }
-    }
-  });
+  _escucharNotificaciones('cajero', 'cajero');
+  _escucharNotificaciones('bartender', 'bartender');
+  _escucharNotificaciones('cocinero', 'cocinero');
+  _escucharNotificaciones('garzon', 'garzon');
 }

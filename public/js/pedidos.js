@@ -10,13 +10,23 @@ let qrFileData = null;
 let mixtoFileData = null;
 let anularPedidoId = null;
 let activeCategory = null;
+let isCajaMode = false;
+let cajaModeCliente = null;
 
 function openPedidoModal(mesaId) {
-  selectedMesa = DB.mesas.find(m => m.id === mesaId);
-  if (!selectedMesa) {
-    alert('Esta mesa ya no existe o fue eliminada por un administrador.');
+  if (mesaId) {
+    selectedMesa = DB.mesas.find(m => m.id === mesaId);
+    if (!selectedMesa) {
+      mostrarToast('Error', 'Esta mesa ya no existe o fue eliminada por un administrador.');
+      return;
+    }
+  } else if (isCajaMode) {
+    // Modo caja: no hay mesa seleccionada
+    selectedMesa = null;
+  } else {
     return;
   }
+  
   cart = [];
   selectedPayMethod = null;
   qrFileData = null;
@@ -43,6 +53,11 @@ function openPedidoModal(mesaId) {
 
 function buildProductGrid() {
   const cats = [...new Set(DB.productos.filter(p => p.activo).map(p => p.categoria))];
+  if (cats.length === 0) {
+    document.getElementById('cat-pills').innerHTML = '';
+    document.getElementById('product-grid').innerHTML = '<div class="empty-state"><div class="empty-icon">' + icon('package', 40, 'icon-muted') + '</div><p>No hay productos disponibles</p></div>';
+    return;
+  }
   if (!activeCategory) activeCategory = cats[0];
 
   const pills = document.getElementById('cat-pills');
@@ -89,7 +104,7 @@ function renderCart() {
   document.getElementById('cart-total-val').textContent = `Bs. ${total}`;
   document.getElementById('cart-count').textContent = `${cart.reduce((s, c) => s + c.qty, 0)} items`;
   if (cart.length === 0) {
-    items.innerHTML = '<div class="empty-state" style="padding:20px;"><div class="empty-icon">🛒</div><p>Agrega productos al pedido</p></div>';
+    items.innerHTML = '<div class="empty-state" style="padding:20px;"><div class="empty-icon">' + icon('shoppingCart', 40, 'icon-muted') + '</div><p>Agrega productos al pedido</p></div>';
     return;
   }
   items.innerHTML = cart.map(c => `
@@ -132,9 +147,20 @@ function calcMixto() {
   updateConfirmBtn();
 }
 
+const MAX_IMG_SIZE = 500 * 1024;
+
+function validarImgSize(file) {
+  if (file.size > MAX_IMG_SIZE) {
+    mostrarToast('Imagen muy grande', `Máximo ${MAX_IMG_SIZE / 1024}KB. La imagen actual pesa ${(file.size / 1024).toFixed(0)}KB.`);
+    return false;
+  }
+  return true;
+}
+
 function handleQRUpload(input) {
   const file = input.files[0];
   if (!file) return;
+  if (!validarImgSize(file)) { input.value = ''; return; }
   const reader = new FileReader();
   reader.onload = e => {
     qrFileData = e.target.result;
@@ -149,6 +175,7 @@ function handleQRUpload(input) {
 function handleMixtoUpload(input) {
   const file = input.files[0];
   if (!file) return;
+  if (!validarImgSize(file)) { input.value = ''; return; }
   const reader = new FileReader();
   reader.onload = e => {
     mixtoFileData = e.target.result;
@@ -182,6 +209,68 @@ function updateConfirmBtn() {
 }
 
 function confirmarPedido() {
+  if (isCajaMode) {
+    // Modo caja: no requiere mesa, el cliente paga en mostrador
+    if (cart.length === 0 || !selectedPayMethod) return;
+    const total = cart.reduce((s, c) => s + c.qty * c.precio, 0);
+    const clienteNombre = document.getElementById('pedido-cliente').value.trim();
+    const nota = document.getElementById('pedido-nota').value.trim();
+    const hoy = getTodayStr();
+    const hora = getTimeStr();
+
+    let efectivo = 0, qr = 0, cambio = 0, comprobante = null;
+    if (selectedPayMethod === 'efectivo') {
+      const recibido = parseFloat(document.getElementById('monto-recibido').value) || 0;
+      efectivo = total;
+      cambio = recibido - total;
+      comprobante = null;
+    } else if (selectedPayMethod === 'qr') {
+      qr = total;
+      comprobante = qrFileData;
+    } else if (selectedPayMethod === 'mixto') {
+      efectivo = parseFloat(document.getElementById('mixto-efectivo').value) || 0;
+      qr = parseFloat(document.getElementById('mixto-qr').value) || 0;
+      comprobante = mixtoFileData;
+    }
+
+    const pedidoId = Date.now();
+    const pedido = {
+      id: pedidoId,
+      mesaId: null,
+      mesaNum: 'TL', // Takeaway / Para Llevar
+      garzonId: null,
+      garzonNombre: '—',
+      origen: 'caja',
+      clienteNombre,
+      productos: [...cart],
+      nota,
+      total,
+      metodo: selectedPayMethod,
+      efectivo, qr, cambio, comprobante,
+      horaCreacion: hora,
+      fecha: hoy,
+      estado: 'caja_confirmada',
+      bartenderConfirmado: false,
+      cocineraConfirmada: false,
+    };
+
+    if (typeof db !== 'undefined') {
+      db.ref('pedidos/' + pedidoId).set(pedido).catch(e => console.error('Error creando pedido:', e));
+    } else {
+      DB.pedidos.push(pedido);
+    }
+
+    // Notificar a garzones que hay un pedido disponible en caja
+    Notificaciones.notificarPedidoCajaDisponible(pedido);
+
+    addLog(`Creó pedido en caja — ${clienteNombre || 'Cliente'} — Bs.${total} — ${metodoLabel(selectedPayMethod)}`);
+
+    closeModal('modal-pedido');
+    renderCaja();
+    return;
+  }
+
+  // Modo normal (garzón)
   if (!selectedMesa || cart.length === 0 || !selectedPayMethod) return;
   const total = cart.reduce((s, c) => s + c.qty * c.precio, 0);
   const clienteNombre = document.getElementById('pedido-cliente').value.trim();
@@ -204,8 +293,7 @@ function confirmarPedido() {
     comprobante = mixtoFileData;
   }
 
-  // Crear pedido
-  const pedidoId = DB.nextPedidoId++;
+  const pedidoId = Date.now();
   const pedido = {
     id: pedidoId,
     mesaId: selectedMesa.id,
@@ -226,15 +314,13 @@ function confirmarPedido() {
   };
   
   if (typeof db !== 'undefined') {
-    db.ref('pedidos/' + pedidoId).set(pedido);
+    db.ref('pedidos/' + pedidoId).set(pedido).catch(e => console.error('Error creando pedido:', e));
   } else {
     DB.pedidos.push(pedido);
   }
 
-  // Notificar a la cajera
   Notificaciones.notificarNuevoPedido(pedido);
 
-  // Log
   addLog(`Confirmó pedido Mesa ${selectedMesa.numero} — Bs.${total} — ${metodoLabel(selectedPayMethod)}`);
 
   closeModal('modal-pedido');
@@ -248,7 +334,7 @@ function initAnular(pedidoId) {
   const hoy = getTodayStr();
   const anulacionesHoy = DB.anulaciones.filter(a => a.garzonId === currentUser.id && a.fecha === hoy).length;
   if (anulacionesHoy >= 3) {
-    alert('Has alcanzado el límite de 3 anulaciones por noche. Contacta al administrador.');
+    mostrarToast('Límite alcanzado', 'Has alcanzado el límite de 3 anulaciones por noche. Contacta al administrador.');
     return;
   }
   anularPedidoId = pedidoId;
@@ -259,19 +345,19 @@ function initAnular(pedidoId) {
 
 function ejecutarAnulacion() {
   const motivo = document.getElementById('motivo-anulacion').value.trim();
-  if (!motivo) { alert('Debes ingresar un motivo'); return; }
+  if (!motivo) { mostrarToast('Error', 'Debes ingresar un motivo'); return; }
   const pedido = DB.pedidos.find(p => p.id === anularPedidoId);
   if (!pedido) return;
   const hoy = getTodayStr();
   const hora = getTimeStr();
   pedido.estado = 'anulado';
   const mesa = DB.mesas.find(m => m.id === pedido.mesaId);
-  const anulacionId = DB.anulaciones.length + 1;
+  const anulacionId = Date.now();
   const anulacion = { id: anulacionId, mesa: pedido.mesaNum, garzonId: currentUser.id, garzonNombre: currentUser.nombre, fecha: hoy, hora, monto: pedido.total, motivo };
   
   if (typeof db !== 'undefined') {
-    db.ref('pedidos/' + pedido.id).update({ estado: 'anulado' });
-    db.ref('anulaciones/' + anulacionId).set(anulacion);
+    db.ref('pedidos/' + pedido.id).update({ estado: 'anulado' }).catch(e => console.error(e));
+    db.ref('anulaciones/' + anulacionId).set(anulacion).catch(e => console.error(e));
   } else {
     pedido.estado = 'anulado';
     DB.anulaciones.push(anulacion);
@@ -287,8 +373,7 @@ function marcarEntregadoMesa(pedidoId) {
   if (!pedido) return;
   const mesa = DB.mesas.find(m => m.id === pedido.mesaId);
   
-  // Crear venta final
-  const ventaId = DB.nextVentaId++;
+  const ventaId = Date.now() + 1;
   const venta = {
     id: ventaId,
     mesa: pedido.mesaNum,
@@ -311,27 +396,20 @@ function marcarEntregadoMesa(pedidoId) {
     cambio: pedido.cambio,
     bartenderNombre: pedido.bartenderNombre || null,
     horaBar: pedido.horaBar || null,
-    cocineraNombre: pedido.cocineraNombre || null,
-    horacocina: pedido.horacocina || null,
+    cocineroNombre: pedido.cocineroNombre || null,
+    horaCocina: pedido.horaCocina || null,
     estado: 'cobrado',
   };
   
   if (typeof db !== 'undefined') {
-    db.ref('pedidos/' + pedido.id).update({ estado: 'entregado', horaCierre: venta.horaCierre });
-    db.ref('ventas/' + ventaId).set(venta);
+    db.ref('pedidos/' + pedido.id).update({ estado: 'entregado', horaCierre: venta.horaCierre }).catch(e => console.error(e));
+    db.ref('ventas/' + ventaId).set(venta).catch(e => console.error(e));
   } else {
     pedido.estado = 'entregado';
     pedido.horaCierre = venta.horaCierre;
     DB.ventas.push(venta);
   }
   
-  addLog(`Entregó pedido a Mesa ${pedido.mesaNum}`);
-
-  // Notificar al sistema para re-renderizar
-  setTimeout(() => {
-    renderMesasGarzon();
-  }, 500);
-
-  addLog(`Entregó pedido a Mesa ${pedido.mesaNum} — venta #${String(venta.id).padStart(4, '0')} registrada`);
+  addLog(`Entregó pedido a Mesa ${pedido.mesaNum} — venta registrada`);
   renderMesasGarzon();
 }

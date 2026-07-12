@@ -41,16 +41,8 @@ function poblarFiltroGarzon() {
 }
 
 function aplicarFiltros() {
-  let ventas = DB.pedidos
-    .filter(p => ['caja_confirmada', 'listo', 'entregado'].includes(p.estado))
-    .map(p => ({
-      ...p,
-      mesa: p.mesaNum,
-      hora: p.horaCreacion,
-      estado: 'cobrado'
-    }));
+  let ventas = DB.ventas.filter(v => v.estado === 'cobrado');
 
-  // Date range filter
   if (dpStartDate && dpEndDate) {
     ventas = ventas.filter(v => v.fecha >= dpStartDate && v.fecha <= dpEndDate);
   } else if (dpStartDate) {
@@ -61,30 +53,27 @@ function aplicarFiltros() {
   if (garzon) ventas = ventas.filter(v => v.garzonId == garzon);
   const metodo = document.getElementById('f-metodo').value;
   if (metodo) ventas = ventas.filter(v => v.metodo === metodo);
-  const estado = document.getElementById('f-estado').value;
-  if (estado) ventas = ventas.filter(v => v.estado === estado);
   const buscar = normalizeText(document.getElementById('f-buscar').value.trim());
   if (buscar) ventas = ventas.filter(v => String(v.id).includes(buscar) || String(v.mesa).includes(buscar) || normalizeText(v.clienteNombre).includes(buscar) || normalizeText(v.garzonNombre).includes(buscar));
 
-  const cobradas = ventas.filter(v => v.estado === 'cobrado');
-  document.getElementById('v-total').textContent = `Bs. ${Number(cobradas.reduce((s, v) => s + v.total, 0).toFixed(2))}`;
-  document.getElementById('v-efectivo').textContent = `Bs. ${Number(cobradas.reduce((s, v) => s + (v.efectivo || 0), 0).toFixed(2))}`;
-  document.getElementById('v-qr').textContent = `Bs. ${Number(cobradas.reduce((s, v) => s + (v.qr || 0), 0).toFixed(2))}`;
+  document.getElementById('v-total').textContent = `Bs. ${Number(ventas.reduce((s, v) => s + v.total, 0).toFixed(2))}`;
+  document.getElementById('v-efectivo').textContent = `Bs. ${Number(ventas.reduce((s, v) => s + (v.efectivo || 0), 0).toFixed(2))}`;
+  document.getElementById('v-qr').textContent = `Bs. ${Number(ventas.reduce((s, v) => s + (v.qr || 0), 0).toFixed(2))}`;
 
   const tbody = document.getElementById('ventas-tbody');
   if (ventas.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:30px;">Sin resultados</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:30px;">Sin resultados</td></tr>`;
     return;
   }
-  tbody.innerHTML = [...ventas].reverse().map(v => `
+  tbody.innerHTML = [...ventas].reverse().map((v, i) => `
     <tr>
-      <td style="color:var(--accent);font-weight:700;">#${String(v.id).padStart(4, '0')}</td>
+      <td style="color:var(--accent);font-weight:700;">#${i + 1}</td>
       <td>${v.fecha}<br><span style="color:var(--text3);font-size:11px;">${v.hora}</span></td>
       <td class="hide-mobile">${v.garzonNombre}</td>
       <td>Mesa ${v.mesa}</td>
       <td style="font-family:'Syne',sans-serif;font-weight:700;">Bs. ${v.total}</td>
       <td><span class="badge badge-${v.metodo}">${metodoLabel(v.metodo)}</span></td>
-      <td class="hide-mobile"><span class="badge badge-${v.estado === 'cobrado' ? 'paid' : 'cancelled'}">${v.estado === 'cobrado' ? '✅ Cobrado' : '❌ Anulado'}</span></td>
+      <td class="hide-mobile"><span class="badge badge-paid">${icon('checkCircle', 12, 'icon-success')} Cobrado</span></td>
       <td><button class="btn btn-outline btn-sm" onclick="verDetalleVenta(${v.id})">Ver →</button></td>
     </tr>`).join('');
 }
@@ -99,7 +88,6 @@ function limpiarFiltros() {
   document.getElementById('f-fecha-label').textContent = 'Hoy';
   document.getElementById('f-garzon').value = '';
   document.getElementById('f-metodo').value = '';
-  document.getElementById('f-estado').value = '';
   document.getElementById('f-buscar').value = '';
   aplicarFiltros();
 }
@@ -134,13 +122,13 @@ document.addEventListener('click', function(e) {
   }
 });
 
-function dpPreset(preset) {
+function dpPreset(preset, btnElement) {
   const hoy = new Date();
   const hoyStr = formatDateStr(hoy);
   dpActivePreset = preset;
 
   document.querySelectorAll('.dp-preset').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  if (btnElement) btnElement.classList.add('active');
 
   switch (preset) {
     case 'hoy':
@@ -350,24 +338,23 @@ function dpNextMonth() {
 }
 
 function verDetalleVenta(id) {
-  const p = DB.pedidos.find(x => x.id === id);
-  if (!p) return;
-  const v = { ...p, mesa: p.mesaNum, hora: p.horaCreacion, estado: 'cobrado' };
-  document.getElementById('modal-detalle-title').textContent = `Venta #${String(v.id).padStart(4, '0')}`;
+  const v = DB.ventas.find(x => x.id === id);
+  if (!v) return;
+  document.getElementById('modal-detalle-title').textContent = `Venta #${String(v.id).slice(-5)}`;
   document.getElementById('modal-detalle-body').innerHTML = `
     <div style="margin-bottom:16px;">
-      <div class="trace-row"><span class="trace-icon">👤</span><div class="trace-info"><strong>Garzón</strong><span>${v.garzonNombre}</span></div></div>
-      <div class="trace-row"><span class="trace-icon">🪑</span><div class="trace-info"><strong>Mesa</strong><span>Mesa ${v.mesa}</span></div></div>
-      <div class="trace-row"><span class="trace-icon">📅</span><div class="trace-info"><strong>Fecha y hora apertura</strong><span>${v.fecha} — ${v.hora}</span></div></div>
-      <div class="trace-row"><span class="trace-icon">🕙</span><div class="trace-info"><strong>Hora de cierre</strong><span>${v.horaCierre || '—'}</span></div></div>
-      ${v.bartenderNombre ? `<div class="trace-row"><span class="trace-icon">🍺</span><div class="trace-info"><strong>Preparado por bar</strong><span>${v.bartenderNombre} — ${v.horaBar}</span></div></div>` : ''}
-      ${v.cocineraNombre ? `<div class="trace-row"><span class="trace-icon">👨🍳</span><div class="trace-info"><strong>Preparado por cocina</strong><span>${v.cocineraNombre} — ${v.horacocina}</span></div></div>` : ''}
-      ${v.cajeraNombre ? `<div class="trace-row"><span class="trace-icon">💰</span><div class="trace-info"><strong>Confirmado por caja</strong><span>${v.cajeraNombre} — ${v.horaCaja}</span></div></div>` : ''}
+      <div class="trace-row"><span class="trace-icon">${icon('user', 14, 'icon-muted')}</span><div class="trace-info"><strong>Garzón</strong><span>${v.garzonNombre}</span></div></div>
+      <div class="trace-row"><span class="trace-icon">${icon('table', 14, 'icon-muted')}</span><div class="trace-info"><strong>Mesa</strong><span>Mesa ${v.mesa}</span></div></div>
+      <div class="trace-row"><span class="trace-icon">${icon('calendar', 14, 'icon-muted')}</span><div class="trace-info"><strong>Fecha y hora apertura</strong><span>${v.fecha} — ${v.hora}</span></div></div>
+      <div class="trace-row"><span class="trace-icon">${icon('clock', 14, 'icon-muted')}</span><div class="trace-info"><strong>Hora de cierre</strong><span>${v.horaCierre || '—'}</span></div></div>
+      ${v.bartenderNombre ? `<div class="trace-row"><span class="trace-icon">${icon('wine', 14, 'icon-info')}</span><div class="trace-info"><strong>Preparado por bar</strong><span>${v.bartenderNombre} — ${v.horaBar}</span></div></div>` : ''}
+      ${(v.cocineroNombre || v.cocineraNombre) ? `<div class="trace-row"><span class="trace-icon">${icon('chefHat', 14, 'icon-warning')}</span><div class="trace-info"><strong>Preparado por cocina</strong><span>${v.cocineroNombre || v.cocineraNombre} — ${v.horaCocina || v.horacocina || ''}</span></div></div>` : ''}
+      ${v.cajeraNombre ? `<div class="trace-row"><span class="trace-icon">${icon('cash', 14, 'icon-success')}</span><div class="trace-info"><strong>Confirmado por caja</strong><span>${v.cajeraNombre} — ${v.horaCaja}</span></div></div>` : ''}
     </div>
     <div class="divider"></div>
     <strong style="font-size:13px;display:block;margin-bottom:10px;">Productos</strong>
     ${v.productos.map(p => `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${p.qty}x ${p.nombre}</span><span style="color:var(--accent);">Bs. ${p.qty * p.precio}</span></div>`).join('')}
-    ${v.nota ? `<div style="padding:8px 10px;background:var(--bg2);border-radius:8px;font-size:12px;color:var(--text2);margin-top:8px;">📝 ${v.nota}</div>` : ''}
+    ${v.nota ? `<div style="padding:8px 10px;background:var(--bg2);border-radius:8px;font-size:12px;color:var(--text2);margin-top:8px;">${icon('note', 12)} ${v.nota}</div>` : ''}
     <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:16px;font-weight:700;font-family:'Syne',sans-serif;">
       <span>TOTAL</span><span>Bs. ${v.total}</span>
     </div>
@@ -392,9 +379,9 @@ function renderAnulaciones() {
     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:30px;">Sin anulaciones</td></tr>`;
     return;
   }
-  tbody.innerHTML = [...DB.anulaciones].reverse().map(a => `
+  tbody.innerHTML = [...DB.anulaciones].reverse().map((a, i) => `
     <tr>
-      <td style="color:var(--red);font-weight:700;">#${String(a.id).padStart(4, '0')}</td>
+      <td style="color:var(--red);font-weight:700;">#${i + 1}</td>
       <td>${a.fecha}<br><span style="color:var(--text3);font-size:11px;">${a.hora}</span></td>
       <td>${a.garzonNombre}</td>
       <td>Mesa ${a.mesa}</td>
@@ -413,7 +400,7 @@ function renderLog() {
     return;
   }
   if (DB.log.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>Sin registros</p></div>';
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">' + icon('fileText', 40, 'icon-muted') + '</div><p>Sin registros</p></div>';
     return;
   }
 
@@ -498,23 +485,41 @@ function renderLog() {
 function renderCierreHistorial() {
   const c = document.getElementById('cierre-historial');
   if (DB.cierres.length === 0) {
-    c.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">🔒</div><p>Sin cierres registrados aún</p></div></div>';
+    c.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">' + icon('lock', 40, 'icon-muted') + '</div><p>Sin cierres registrados aún</p></div></div>';
     return;
   }
-  c.innerHTML = DB.cierres.map(ci => `
-    <div class="card" style="margin-bottom:16px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <h3 style="font-size:16px;">🔒 Cierre — ${ci.fecha}</h3>
-        <span style="font-size:12px;color:var(--text2);">Cajero: ${ci.cajero} — ${ci.hora}</span>
+  c.innerHTML = DB.cierres.map((ci, i) => `
+    <div class="cierre-accordion" id="cierre-acc-${i}">
+      <div class="cierre-header" onclick="toggleCierreAccordion(${i})">
+        <span style="flex-shrink:0;">${icon('lock', 14, 'icon-muted')}</span>
+        <span class="cierre-date">${ci.fecha}</span>
+        <div class="cierre-summary">
+          <span class="cierre-chip green">${icon('cash', 11)} Bs. ${ci.efectivo}</span>
+          <span class="cierre-chip blue">${icon('smartphone', 11)} Bs. ${ci.qr}</span>
+          ${ci.anulaciones > 0 ? `<span class="cierre-chip red">${icon('alertTriangle', 11)} Bs. ${ci.anulaciones}</span>` : ''}
+        </div>
+        <span class="cierre-amount">Bs. ${ci.totalVentas}</span>
+        <span class="cierre-chevron">${icon('chevronDown', 14)}</span>
       </div>
-      <div class="cierre-summary">
-        <div class="cierre-row"><span>Total ventas</span><span>Bs. ${ci.totalVentas}</span></div>
-        <div class="cierre-row"><span>Efectivo cobrado</span><span style="color:var(--green);">Bs. ${ci.efectivo}</span></div>
-        <div class="cierre-row"><span>QR cobrado</span><span style="color:var(--blue);">Bs. ${ci.qr}</span></div>
-        <div class="cierre-row"><span>Anulaciones</span><span style="color:var(--red);">Bs. ${ci.anulaciones}</span></div>
-        <div class="cierre-row"><span>Cambios devueltos</span><span>Bs. ${ci.cambios}</span></div>
-        <div class="cierre-row"><span>Efectivo neto en caja</span><span style="color:var(--green);">Bs. ${ci.efectivoNeto}</span></div>
+      <div class="cierre-body">
+        <div class="cierre-body-inner">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-bottom:8px;">
+            <span>Cajero: ${ci.cajero}</span>
+            <span>${ci.hora}</span>
+          </div>
+          <div class="cierre-row"><span>Total ventas</span><span>Bs. ${ci.totalVentas}</span></div>
+          <div class="cierre-row"><span>${icon('cash', 13, 'icon-success')} Efectivo cobrado</span><span style="color:var(--green);">Bs. ${ci.efectivo}</span></div>
+          <div class="cierre-row"><span>${icon('smartphone', 13, 'icon-info')} QR cobrado</span><span style="color:var(--blue);">Bs. ${ci.qr}</span></div>
+          <div class="cierre-row"><span>${icon('alertTriangle', 13, 'icon-danger')} Anulaciones</span><span style="color:var(--red);">Bs. ${ci.anulaciones}</span></div>
+          <div class="cierre-row"><span>Cambios devueltos</span><span>Bs. ${ci.cambios}</span></div>
+          <div class="cierre-row"><span style="font-weight:600;color:var(--text);">Efectivo neto en caja</span><span style="color:var(--green);font-weight:700;">Bs. ${ci.efectivoNeto}</span></div>
+          ${ci.obs ? `<div style="margin-top:8px;padding:8px 10px;background:var(--bg2);border-radius:8px;font-size:12px;color:var(--text2);">${icon('note', 12)} ${ci.obs}</div>` : ''}
+        </div>
       </div>
-      ${ci.obs ? `<p style="font-size:13px;color:var(--text2);padding:10px;background:var(--bg2);border-radius:8px;">📝 ${ci.obs}</p>` : ''}
     </div>`).join('');
+}
+
+function toggleCierreAccordion(index) {
+  const el = document.getElementById(`cierre-acc-${index}`);
+  if (el) el.classList.toggle('open');
 }

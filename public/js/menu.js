@@ -7,6 +7,11 @@ let menuActiveCat = null;
 
 function renderMenu() {
   const cats = [...new Set(DB.productos.map(p => p.categoria))];
+  if (cats.length === 0) {
+    document.getElementById('menu-tabs').innerHTML = '';
+    document.getElementById('menu-productos-grid').innerHTML = '<div class="empty-state"><div class="empty-icon">' + icon('package', 40, 'icon-muted') + '</div><p>No hay productos aún. Crea uno nuevo.</p></div>';
+    return;
+  }
   if (!menuActiveCat || !cats.includes(menuActiveCat)) menuActiveCat = cats[0];
 
   const tabs = document.getElementById('menu-tabs');
@@ -37,7 +42,7 @@ function crearProducto() {
   const nombre = document.getElementById('np-nombre').value.trim();
   const precio = parseFloat(document.getElementById('np-precio').value);
   const categoria = document.getElementById('np-categoria').value;
-  if (!nombre || !precio) return alert('Completa todos los campos');
+  if (!nombre || !precio) return mostrarToast('Error', 'Completa todos los campos');
 
   const id = Date.now();
   const nuevoProducto = { id, nombre, precio, categoria, activo: true };
@@ -71,17 +76,24 @@ function toggleProducto(id) {
 function editarProductoPrecio(id) {
   const p = DB.productos.find(x => x.id === id);
   if (!p) return;
-  const nuevo = prompt(`Nuevo precio para "${p.nombre}" (actual: Bs. ${p.precio}):`, p.precio);
-  if (nuevo !== null && !isNaN(nuevo) && parseFloat(nuevo) > 0) {
-    const precioAnterior = p.precio;
-    p.precio = parseFloat(nuevo);
-
-    if (typeof db !== 'undefined') {
-      db.ref('productos/' + id).update({ precio: p.precio });
+  mostrarPrompt(
+    `Nuevo precio para "${p.nombre}"`,
+    `Precio actual: Bs. ${p.precio}`,
+    nuevo => {
+      if (nuevo === null) return;
+      const val = parseFloat(nuevo);
+      if (isNaN(val) || val <= 0) {
+        mostrarToast('Error', 'Ingresa un precio válido mayor a 0');
+        return;
+      }
+      const precioAnterior = p.precio;
+      p.precio = val;
+      if (typeof db !== 'undefined') {
+        db.ref('productos/' + id).update({ precio: p.precio }).catch(e => console.error(e));
+      }
+      addLog(`Editó precio de "${p.nombre}": Bs. ${precioAnterior} → Bs. ${p.precio}`);
+      renderMenu();
     }
-
-    addLog(`Editó precio de "${p.nombre}": Bs. ${precioAnterior} → Bs. ${p.precio}`);
-    renderMenu();
-  }
+  );
 }
 

@@ -2,7 +2,7 @@
 // NAVEGACIÓN — Sistema Discoteca
 // ============================================================
 
-const ICONS = {
+const NAV_ICONS = {
   home: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
   ventas: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="M12 12v-8"/><path d="M8 8l4-4 4 4"/></svg>',
   alert: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>',
@@ -18,41 +18,41 @@ const ICONS = {
 const NAV_CONFIG = {
   admin: [
     { section: 'Principal', items: [
-      { icon: ICONS.home, label: 'Dashboard', page: 'page-dashboard' },
-      { icon: ICONS.ventas, label: 'Ventas', page: 'page-ventas' },
-      { icon: ICONS.alert, label: 'Anulaciones', page: 'page-anulaciones' },
+      { icon: NAV_ICONS.home, label: 'Dashboard', page: 'page-dashboard' },
+      { icon: NAV_ICONS.ventas, label: 'Ventas', page: 'page-ventas' },
+      { icon: NAV_ICONS.alert, label: 'Anulaciones', page: 'page-anulaciones' },
     ]},
     { section: 'Reportes', items: [
-      { icon: ICONS.log, label: 'Log de acciones', page: 'page-log' },
-      { icon: ICONS.cierre, label: 'Cierre de caja', page: 'page-cierre' },
+      { icon: NAV_ICONS.log, label: 'Log de acciones', page: 'page-log' },
+      { icon: NAV_ICONS.cierre, label: 'Cierre de caja', page: 'page-cierre' },
     ]},
     { section: 'Configuración', items: [
-      { icon: ICONS.users, label: 'Usuarios', page: 'page-usuarios' },
-      { icon: ICONS.menu, label: 'Menú', page: 'page-menu' },
+      { icon: NAV_ICONS.users, label: 'Usuarios', page: 'page-usuarios' },
+      { icon: NAV_ICONS.menu, label: 'Menú', page: 'page-menu' },
     ]},
   ],
   garzon: [
     { section: 'Trabajo', items: [
-      { icon: ICONS.mesas, label: 'Mis mesas', page: 'page-mesas-garzon' },
-      { icon: ICONS.historial, label: 'Historial', page: 'page-garzon-historial' },
+      { icon: NAV_ICONS.mesas, label: 'Mis mesas', page: 'page-mesas-garzon' },
+      { icon: NAV_ICONS.historial, label: 'Historial', page: 'page-garzon-historial' },
     ]},
   ],
   bartender: [
     { section: 'Trabajo', items: [
-      { icon: ICONS.panel, label: 'Panel del Bar', page: 'page-bar' },
-      { icon: ICONS.historial, label: 'Historial', page: 'page-bar-historial' },
+      { icon: NAV_ICONS.panel, label: 'Panel del Bar', page: 'page-bar' },
+      { icon: NAV_ICONS.historial, label: 'Historial', page: 'page-bar-historial' },
     ]},
   ],
   cajero: [
     { section: 'Trabajo', items: [
-      { icon: ICONS.panel, label: 'Panel de Caja', page: 'page-caja' },
-      { icon: ICONS.historial, label: 'Historial', page: 'page-caja-historial' },
+      { icon: NAV_ICONS.panel, label: 'Panel de Caja', page: 'page-caja' },
+      { icon: NAV_ICONS.historial, label: 'Historial', page: 'page-caja-historial' },
     ]},
   ],
   cocinero: [
     { section: 'Trabajo', items: [
-      { icon: ICONS.panel, label: 'Cocina', page: 'page-cocina' },
-      { icon: ICONS.historial, label: 'Historial', page: 'page-cocina-historial' },
+      { icon: NAV_ICONS.panel, label: 'Cocina', page: 'page-cocina' },
+      { icon: NAV_ICONS.historial, label: 'Historial', page: 'page-cocina-historial' },
     ]},
   ],
 };

@@ -13,7 +13,7 @@
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">
-      <div class="logo-icon">🌙</div>
+      <div class="logo-icon" id="login-logo-icon"></div>
       <h1>Sistema Discoteca</h1>
       <p>Sistema de Ventas</p>
     </div>
@@ -44,8 +44,8 @@
   <!-- MOBILE TOPBAR -->
   <div class="topbar" id="topbar">
     <div class="topbar-logo">
-      <button onclick="openDrawer()" style="background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--text);font-size:20px;line-height:1;">☰</button>
-      <div class="logo-mini">🌙</div>
+      <button onclick="openDrawer()" style="background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--text);width:28px;height:28px;display:flex;align-items:center;justify-content:center;" id="btn-drawer-icon"></button>
+      <div class="logo-mini" id="logo-mini-2"></div>
       <span>Sistema Discoteca</span>
     </div>
     <div class="topbar-right">
@@ -69,7 +69,7 @@
   <div class="mobile-drawer" id="mobile-drawer">
     <div class="drawer-header">
       <div style="display:flex;align-items:center;gap:10px;">
-        <div class="logo-mini" style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:14px;">🌙</div>
+        <div class="logo-mini" style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;" id="logo-mini-3"></div>
         <span style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;">Sistema Discoteca</span>
       </div>
       <button class="drawer-close" onclick="closeDrawer()">✕</button>
@@ -90,7 +90,7 @@
         <div class="ts-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg></div>
         <div class="ts-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></div>
       </div>
-      <button class="logout-btn" onclick="doLogout()">🚪 Cerrar sesión</button>
+      <button class="logout-btn" onclick="doLogout()" id="logout-drawer"></button>
     </div>
   </div>
 
@@ -101,7 +101,7 @@
   <div class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <div class="logo-row">
-        <div class="logo-mini">🌙</div>
+<div class="logo-mini" id="logo-mini-1"></div>
         <h2>Sistema Discoteca</h2>
       </div>
     </div>
@@ -121,7 +121,7 @@
         <div class="ts-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg></div>
         <div class="ts-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></div>
       </div>
-      <button class="logout-btn" onclick="doLogout()">🚪 Cerrar sesión</button>
+      <button class="logout-btn" onclick="doLogout()" id="logout-sidebar"></button>
     </div>
   </div>
 
@@ -136,28 +136,28 @@
       </div>
       <div class="stats-grid">
         <div class="stat-card purple">
-          <div class="stat-icon">💰</div>
+          <div class="stat-icon" id="stat-icon-1"></div>
           <div>
             <div class="stat-value" id="stat-total">Bs. 0</div>
             <div class="stat-label">Total ventas hoy</div>
           </div>
         </div>
         <div class="stat-card green">
-          <div class="stat-icon">💵</div>
+          <div class="stat-icon" id="stat-icon-2"></div>
           <div>
             <div class="stat-value" id="stat-efectivo">Bs. 0</div>
             <div class="stat-label">Efectivo cobrado</div>
           </div>
         </div>
         <div class="stat-card blue">
-          <div class="stat-icon">📱</div>
+          <div class="stat-icon" id="stat-icon-3"></div>
           <div>
             <div class="stat-value" id="stat-qr">Bs. 0</div>
             <div class="stat-label">QR cobrado</div>
           </div>
         </div>
         <div class="stat-card red">
-          <div class="stat-icon">⚠️</div>
+          <div class="stat-icon" id="stat-icon-4"></div>
           <div>
             <div class="stat-value" id="stat-alertas">0</div>
             <div class="stat-label">Alertas activas</div>
@@ -172,14 +172,14 @@
         <!-- PRODUCTOS MAS VENDIDOS -->
         <div class="card">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-            <h3 style="font-size:16px;">📊 Más vendidos hoy</h3>
+            <h3 style="font-size:16px;">Más vendidos hoy</h3>
           </div>
           <div id="top-productos"></div>
         </div>
         <!-- ULTIMAS VENTAS -->
         <div class="card">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-            <h3 style="font-size:16px;">🧾 Últimas ventas</h3>
+            <h3 style="font-size:16px;">Últimas ventas</h3>
             <button class="btn btn-outline btn-sm" onclick="showPage('page-ventas')">Ver todas</button>
           </div>
           <div id="ultimas-ventas"></div>
@@ -197,21 +197,21 @@
       <!-- STATS FILTRADAS -->
       <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
         <div class="stat-card green">
-          <div class="stat-icon">💰</div>
+          <div class="stat-icon" id="stat-icon-5"></div>
           <div>
             <div class="stat-value" id="v-total">Bs. 0</div>
             <div class="stat-label">Total filtrado</div>
           </div>
         </div>
         <div class="stat-card green">
-          <div class="stat-icon">💵</div>
+          <div class="stat-icon" id="stat-icon-6"></div>
           <div>
             <div class="stat-value" id="v-efectivo">Bs. 0</div>
             <div class="stat-label">Efectivo</div>
           </div>
         </div>
         <div class="stat-card blue">
-          <div class="stat-icon">📱</div>
+          <div class="stat-icon" id="stat-icon-7"></div>
           <div>
             <div class="stat-value" id="v-qr">Bs. 0</div>
             <div class="stat-label">QR</div>
@@ -235,12 +235,12 @@
             <!-- PRESETS -->
             <div style="padding:10px;border-bottom:1px solid var(--border);">
               <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                <button class="dp-preset active" onclick="dpPreset('hoy')">Hoy</button>
-                <button class="dp-preset" onclick="dpPreset('ayer')">Ayer</button>
-                <button class="dp-preset" onclick="dpPreset('7dias')">Últimos 7 días</button>
-                <button class="dp-preset" onclick="dpPreset('30dias')">Últimos 30 días</button>
-                <button class="dp-preset" onclick="dpPreset('mes')">Este mes</button>
-                <button class="dp-preset" onclick="dpPreset('todo')">Todo</button>
+                <button class="dp-preset active" onclick="dpPreset('hoy', this)">Hoy</button>
+                <button class="dp-preset" onclick="dpPreset('ayer', this)">Ayer</button>
+                <button class="dp-preset" onclick="dpPreset('7dias', this)">Últimos 7 días</button>
+                <button class="dp-preset" onclick="dpPreset('30dias', this)">Últimos 30 días</button>
+                <button class="dp-preset" onclick="dpPreset('mes', this)">Este mes</button>
+                <button class="dp-preset" onclick="dpPreset('todo', this)">Todo</button>
               </div>
             </div>
             <!-- CALENDAR HEADER -->
@@ -269,7 +269,7 @@
             </div>
             <!-- APPLY -->
             <div style="padding:8px 14px 12px;display:flex;gap:8px;">
-              <button class="btn btn-primary btn-sm" onclick="dpApply()" style="flex:1;">✅ Aplicar</button>
+              <button class="btn btn-primary btn-sm" onclick="dpApply()" style="flex:1;">Aplicar</button>
               <button class="btn btn-outline btn-sm" onclick="closeDatePicker()">Cerrar</button>
             </div>
           </div>
@@ -290,18 +290,10 @@
           </select>
         </div>
         <div class="filter-group">
-          <label>Estado</label>
-          <select id="f-estado" onchange="aplicarFiltros()">
-            <option value="">Todos</option>
-            <option value="cobrado">Cobrado</option>
-            <option value="anulado">Anulado</option>
-          </select>
-        </div>
-        <div class="filter-group">
           <label>Buscar</label>
           <input type="text" id="f-buscar" placeholder="# venta o mesa..." oninput="aplicarFiltros()">
         </div>
-        <button class="btn btn-outline btn-sm" onclick="limpiarFiltros()">🔄 Limpiar</button>
+        <button class="btn btn-outline btn-sm" onclick="limpiarFiltros()">Limpiar</button>
       </div>
 
       <div class="card">
@@ -315,7 +307,6 @@
                 <th>Mesa</th>
                 <th>Total</th>
                 <th>Método</th>
-                <th class="hide-mobile">Estado</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -426,7 +417,7 @@
         <p id="garzon-info-header"></p>
       </div>
       <div class="alert alert-warning" id="alert-anulaciones-garzon" style="display:none;">
-        <span class="alert-icon">⚠️</span>
+        <span class="alert-icon" id="alert-icon-anulaciones"></span>
         <div class="alert-text">
           <strong>Anulaciones de hoy</strong>
           <span id="anulaciones-msg"></span>
@@ -434,9 +425,10 @@
       </div>
       <div class="mesas-grid" id="mesas-garzon-grid"></div>
       <div style="margin-top:16px;">
-        <h3 style="font-size:15px;margin-bottom:12px;">📋 Mis pedidos activos</h3>
+        <h3 style="font-size:15px;margin-bottom:12px;">Mis pedidos activos</h3>
         <div id="pedidos-activos-garzon"></div>
       </div>
+      <div id="pedidos-caja-disponibles"></div>
     </div>
 
     <div class="page" id="page-garzon-historial">
@@ -484,19 +476,24 @@
     <!-- ===== PÁGINA: CAJA ===== -->
     <div class="page" id="page-caja">
       <div class="page-header">
-        <h2>Panel de Caja</h2>
-        <p>Cobros pendientes de confirmación</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2>Panel de Caja</h2>
+            <p>Cobros pendientes de confirmación</p>
+          </div>
+          <button class="btn btn-primary" onclick="openPedidoCaja()">${icon('plus', 16)} Nuevo Pedido</button>
+        </div>
       </div>
       <div id="caja-cobros"></div>
       <div class="divider"></div>
-      <h3 style="font-size:15px;margin-bottom:12px;">🔒 Cierre de Caja</h3>
+      <h3 style="font-size:15px;margin-bottom:12px;" id="cierre-title">Cierre de Caja</h3>
       <div class="card" id="cierre-form-card">
-        <div class="cierre-summary" id="cierre-summary-data"></div>
+        <div class="cierre-summary cierre-summary-vertical" id="cierre-summary-data"></div>
         <div class="form-group">
           <label>Observaciones</label>
           <textarea id="cierre-obs" rows="3" placeholder="Notas del cierre..."></textarea>
         </div>
-        <button class="btn btn-primary" style="width:auto;" onclick="confirmarCierre()">✅ Confirmar cierre de caja</button>
+        <button class="btn btn-primary" style="width:auto;" onclick="confirmarCierre()" id="btn-confirmar-cierre">Confirmar cierre de caja</button>
       </div>
     </div>
 
@@ -528,12 +525,12 @@
       <div class="divider"></div>
       <!-- CARRITO -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <strong style="font-size:13px;">🛒 Pedido</strong>
+        <strong style="font-size:13px;" id="cart-title">Pedido</strong>
         <span id="cart-count" style="font-size:12px;color:var(--text3);">0 items</span>
       </div>
       <div class="cart-items" id="cart-items">
         <div class="empty-state" style="padding:20px;">
-          <div class="empty-icon">🛒</div>
+          <div class="empty-icon" id="cart-empty-icon"></div>
           <p>Agrega productos al pedido</p>
         </div>
       </div>
@@ -543,28 +540,28 @@
       </div>
       <!-- NOMBRE DEL CLIENTE -->
       <div class="form-group">
-        <label>👤 Nombre del cliente (opcional)</label>
+        <label>Nombre del cliente (opcional)</label>
         <input type="text" id="pedido-cliente" placeholder="Ej. Carlos, Mesa del fondo...">
       </div>
       <!-- NOTA -->
       <div class="form-group">
-        <label>📝 Nota del pedido (opcional)</label>
+        <label>Nota del pedido (opcional)</label>
         <input type="text" id="pedido-nota" placeholder="sin hielo, con vaso extra, sin cebolla...">
       </div>
       <!-- MÉTODO DE PAGO -->
       <div class="form-group">
-        <label>💳 Método de pago</label>
+        <label>Método de pago</label>
         <div class="payment-methods">
           <div class="pay-method" id="pay-efectivo" onclick="selectPayMethod('efectivo')">
-            <div class="pay-icon">💵</div>
+            <div class="pay-icon" id="pay-icon-efectivo"></div>
             <div class="pay-label">Efectivo</div>
           </div>
           <div class="pay-method" id="pay-qr" onclick="selectPayMethod('qr')">
-            <div class="pay-icon">📱</div>
+            <div class="pay-icon" id="pay-icon-qr"></div>
             <div class="pay-label">QR</div>
           </div>
           <div class="pay-method" id="pay-mixto" onclick="selectPayMethod('mixto')">
-            <div class="pay-icon">💵📱</div>
+            <div class="pay-icon" id="pay-icon-mixto"></div>
             <div class="pay-label">Mixto</div>
           </div>
         </div>
@@ -583,24 +580,24 @@
       <!-- PAGO QR -->
       <div id="pago-qr-fields" style="display:none;">
         <div class="upload-area" id="qr-upload-area" onclick="document.getElementById('qr-file').click()">
-          <div class="upload-icon">📎</div>
+          <div class="upload-icon" id="qr-upload-icon"></div>
           <div class="upload-text"><strong>Subir comprobante QR</strong><br>Obligatorio para confirmar el cobro</div>
           <input type="file" id="qr-file" accept="image/*" style="display:none;" onchange="handleQRUpload(this)">
         </div>
         <div id="qr-preview" style="display:none;margin-top:10px;text-align:center;">
           <img id="qr-preview-img" style="max-height:120px;border-radius:8px;border:1px solid var(--border);">
-          <p style="font-size:12px;color:var(--green);margin-top:6px;">✅ Comprobante subido</p>
+          <p style="font-size:12px;color:var(--green);margin-top:6px;" id="qr-preview-text">Comprobante subido</p>
         </div>
       </div>
       <!-- PAGO MIXTO -->
       <div id="pago-mixto-fields" style="display:none;">
         <div class="grid-2" style="margin-bottom:10px;">
           <div class="form-group">
-            <label>💵 Efectivo (Bs.)</label>
+            <label>Efectivo (Bs.)</label>
             <input type="number" id="mixto-efectivo" placeholder="0" oninput="calcMixto()">
           </div>
           <div class="form-group">
-            <label>📱 QR (Bs.)</label>
+            <label>QR (Bs.)</label>
             <input type="number" id="mixto-qr" placeholder="0" oninput="calcMixto()">
           </div>
         </div>
@@ -609,19 +606,19 @@
           <strong id="mixto-total-display">Bs. 0</strong>
         </div>
         <div class="upload-area" id="mixto-upload-area" onclick="document.getElementById('mixto-file').click()">
-          <div class="upload-icon">📎</div>
+          <div class="upload-icon" id="mixto-upload-icon"></div>
           <div class="upload-text"><strong>Comprobante QR</strong><br>Obligatorio</div>
           <input type="file" id="mixto-file" accept="image/*" style="display:none;" onchange="handleMixtoUpload(this)">
         </div>
         <div id="mixto-preview" style="display:none;margin-top:10px;text-align:center;">
           <img id="mixto-preview-img" style="max-height:100px;border-radius:8px;border:1px solid var(--border);">
-          <p style="font-size:12px;color:var(--green);margin-top:4px;">✅ Comprobante subido</p>
+          <p style="font-size:12px;color:var(--green);margin-top:4px;" id="mixto-preview-text">Comprobante subido</p>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modal-pedido')">Cancelar</button>
-      <button class="btn btn-primary" id="btn-confirmar-pedido" onclick="confirmarPedido()" style="width:auto;" disabled>✅ Confirmar pedido y cobro</button>
+      <button class="btn btn-primary" id="btn-confirmar-pedido" onclick="confirmarPedido()" style="width:auto;" disabled>Confirmar pedido y cobro</button>
     </div>
   </div>
 </div>
@@ -630,7 +627,7 @@
 <div class="modal-overlay" id="modal-anular">
   <div class="modal" style="max-width:400px;">
     <div class="modal-header">
-      <h3>⚠️ Anular Pedido</h3>
+      <h3>Anular Pedido</h3>
       <button class="modal-close" onclick="closeModal('modal-anular')">✕</button>
     </div>
     <div class="modal-body">
@@ -643,7 +640,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modal-anular')">Cancelar</button>
-      <button class="btn btn-danger" onclick="ejecutarAnulacion()">🗑️ Anular pedido</button>
+      <button class="btn btn-danger" onclick="ejecutarAnulacion()">Anular pedido</button>
     </div>
   </div>
 </div>
@@ -663,7 +660,7 @@
 <div class="modal-overlay" id="modal-nuevo-usuario">
   <div class="modal" style="max-width:400px;">
     <div class="modal-header">
-      <h3>➕ Nuevo Usuario</h3>
+      <h3>Nuevo Usuario</h3>
       <button class="modal-close" onclick="closeModal('modal-nuevo-usuario')">✕</button>
     </div>
     <div class="modal-body">
@@ -700,7 +697,7 @@
 <div class="modal-overlay" id="modal-nuevo-producto">
   <div class="modal" style="max-width:400px;">
     <div class="modal-header">
-      <h3>➕ Nuevo Producto</h3>
+      <h3>Nuevo Producto</h3>
       <button class="modal-close" onclick="closeModal('modal-nuevo-producto')">✕</button>
     </div>
     <div class="modal-body">
@@ -733,16 +730,53 @@
 <div class="modal-overlay" id="modal-confirmar-caja">
   <div class="modal" style="max-width:420px;">
     <div class="modal-header">
-      <h3 id="modal-caja-title">💰 Confirmar Cobro</h3>
+      <h3 id="modal-caja-title">Confirmar Cobro</h3>
       <button class="modal-close" onclick="closeModal('modal-confirmar-caja')">✕</button>
     </div>
     <div class="modal-body" id="modal-caja-body"></div>
   </div>
 </div>
 
+<!-- MODAL: CONFIRM -->
+<div class="modal-overlay" id="modal-confirm-action">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header">
+      <h3 id="modal-confirm-title">Confirmar</h3>
+      <button class="modal-close" onclick="closeModal('modal-confirm-action')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-confirm-msg" style="font-size:14px;color:var(--text2);"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="btn-confirm-no">Cancelar</button>
+      <button class="btn btn-primary" id="btn-confirm-yes">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PROMPT -->
+<div class="modal-overlay" id="modal-prompt-action">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header">
+      <h3 id="modal-prompt-title">Ingresar</h3>
+      <button class="modal-close" onclick="closeModal('modal-prompt-action')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <input type="text" id="modal-prompt-input" placeholder="" style="width:100%;">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="btn-prompt-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="btn-prompt-ok">Aceptar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== SCRIPTS ==================== -->
 <script defer src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database-compat.js"></script>
+<script defer src="js/icons.js?v=50"></script>
 <script defer src="js/utils.js?v=50"></script>
 <script defer src="js/database.js?v=50"></script>
 <script defer src="js/notifications.js?v=50"></script>

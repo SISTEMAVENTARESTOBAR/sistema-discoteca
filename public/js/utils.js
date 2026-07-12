@@ -28,7 +28,24 @@ function formatFechaLarga(str) {
 }
 
 function metodoLabel(m) {
-  return { efectivo: '💵 Efectivo', qr: '📱 QR', mixto: '💵📱 Mixto' }[m] || m;
+  return { efectivo: 'Efectivo', qr: 'QR', mixto: 'Mixto' }[m] || m;
+}
+
+function metodoIcon(m) {
+  const map = { efectivo: 'cash', qr: 'smartphone', mixto: 'creditCard' };
+  return icon(map[m] || 'dollarSign', 14);
+}
+
+function badgeEstado(estado) {
+  const map = {
+    pendiente: { icon: 'clock', label: 'Pendiente', cls: 'badge-pending' },
+    caja_confirmada: { icon: 'checkCircle', label: 'Confirmado', cls: 'badge-paid' },
+    listo: { icon: 'check', label: 'Listo', cls: 'badge-delivered' },
+    entregado: { icon: 'check', label: 'Entregado', cls: 'badge-delivered' },
+    anulado: { icon: 'xCircle', label: 'Anulado', cls: 'badge-cancelled' },
+  };
+  const e = map[estado] || { icon: 'clock', label: estado, cls: '' };
+  return `<span class="badge ${e.cls}">${icon(e.icon, 12)} ${e.label}</span>`;
 }
 
 function getMinutesAgo(horaStr) {
@@ -80,4 +97,49 @@ function rolLabel(rol) {
 
 function rolColor(rol) {
   return { admin: 'var(--accent)', garzon: 'var(--green)', bartender: 'var(--blue)', cajero: 'var(--yellow)', cocinero: 'var(--orange)' }[rol] || 'var(--text3)';
+}
+
+// --- Confirm dialog modal ---
+let _confirmCallback = null;
+let _promptCallback = null;
+
+function mostrarConfirm(titulo, mensaje, callback) {
+  _confirmCallback = callback;
+  const modal = document.getElementById('modal-confirm-action');
+  if (!modal) return;
+  document.getElementById('modal-confirm-title').textContent = titulo;
+  document.getElementById('modal-confirm-msg').innerHTML = mensaje;
+  document.getElementById('btn-confirm-yes').onclick = () => {
+    closeModal('modal-confirm-action');
+    if (_confirmCallback) _confirmCallback(true);
+    _confirmCallback = null;
+  };
+  document.getElementById('btn-confirm-no').onclick = () => {
+    closeModal('modal-confirm-action');
+    if (_confirmCallback) _confirmCallback(false);
+    _confirmCallback = null;
+  };
+  openModal('modal-confirm-action');
+}
+
+function mostrarPrompt(titulo, placeholder, callback) {
+  _promptCallback = callback;
+  const modal = document.getElementById('modal-prompt-action');
+  if (!modal) return;
+  document.getElementById('modal-prompt-title').textContent = titulo;
+  document.getElementById('modal-prompt-input').value = '';
+  document.getElementById('modal-prompt-input').placeholder = placeholder;
+  document.getElementById('btn-prompt-ok').onclick = () => {
+    const val = document.getElementById('modal-prompt-input').value.trim();
+    closeModal('modal-prompt-action');
+    if (_promptCallback) _promptCallback(val || null);
+    _promptCallback = null;
+  };
+  document.getElementById('btn-prompt-cancel').onclick = () => {
+    closeModal('modal-prompt-action');
+    if (_promptCallback) _promptCallback(null);
+    _promptCallback = null;
+  };
+  openModal('modal-prompt-action');
+  setTimeout(() => document.getElementById('modal-prompt-input').focus(), 100);
 }
