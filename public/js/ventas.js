@@ -493,7 +493,7 @@ function renderCierreHistorial() {
       <div class="cierre-header" onclick="toggleCierreAccordion(${i})">
         <span style="flex-shrink:0;">${icon('lock', 14, 'icon-muted')}</span>
         <span class="cierre-date">${ci.fecha}</span>
-        <div class="cierre-summary">
+        <div class="cierre-header-summary">
           <span class="cierre-chip green">${icon('cash', 11)} Bs. ${ci.efectivo}</span>
           <span class="cierre-chip blue">${icon('smartphone', 11)} Bs. ${ci.qr}</span>
           ${ci.anulaciones > 0 ? `<span class="cierre-chip red">${icon('alertTriangle', 11)} Bs. ${ci.anulaciones}</span>` : ''}
