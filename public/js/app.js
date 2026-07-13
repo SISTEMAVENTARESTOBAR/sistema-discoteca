@@ -167,18 +167,48 @@ document.addEventListener('DOMContentLoaded', () => {
 async function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        updateViaCache: 'none' // NUNCA usar caché para el archivo sw.js
+      });
       console.log('[SW] Registrado:', registration.scope);
-      
+
+      // Cuando se detecta una nueva versión del SW → aplicar AUTOMÁTICAMENTE
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
+        if (!newWorker) return;
+
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            mostrarToast('Actualización disponible', 'Recarga la página para aplicar cambios');
+            console.log('[SW] Nueva versión detectada, aplicando actualización...');
+            // Decirle al nuevo SW que tome control inmediatamente
+            newWorker.postMessage('skipWaiting');
           }
         });
       });
-      
+
+      // Cuando el nuevo SW toma control → recargar automáticamente
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          console.log('[SW] Nuevo SW activo, recargando para aplicar cambios...');
+          window.location.reload();
+        }
+      });
+
+      // Escuchar mensajes del SW (ej: caché limpiado)
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data?.type === 'CACHE_CLEARED') {
+          console.log('[SW] Caché limpiado, recargando...');
+          window.location.reload();
+        }
+      });
+
+      // Verificar actualizaciones cada 2 minutos
+      setInterval(() => {
+        registration.update().catch(e => console.log('[SW] Error verificando actualización:', e));
+      }, 2 * 60 * 1000);
+
       // Request push permission
       if ('Notification' in window && Notification.permission === 'default') {
         const permission = await Notification.requestPermission();
@@ -188,7 +218,7 @@ async function registerServiceWorker() {
       console.error('[SW] Error registro:', err);
     }
   }
-  
+
   // Detect online/offline
   window.addEventListener('online', () => updateSyncStatus(true));
   window.addEventListener('offline', () => updateSyncStatus(false));

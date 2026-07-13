@@ -10,10 +10,14 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Cache control headers for better performance
+// Cache control headers — archivos de código SIEMPRE frescos
 app.use((req, res, next) => {
-  if (req.url.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
-    res.setHeader('Cache-Control', 'public, max-age=86400');
+  if (req.url.match(/\.(css|js|html)$/) || req.url === '/') {
+    // JS, CSS, HTML: siempre revalidar con el servidor (no servir versión vieja)
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+  } else if (req.url.match(/\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|wav|mp3)$/)) {
+    // Imágenes, fuentes y audio: cachear 1 hora (no cambian seguido)
+    res.setHeader('Cache-Control', 'public, max-age=3600');
   }
   next();
 });

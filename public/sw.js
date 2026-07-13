@@ -1,9 +1,10 @@
 // ============================================================
 // SERVICE WORKER — Sistema Discoteca PWA
-// Offline support, caching, push notifications
+// Network-first: siempre busca la versión más nueva del servidor.
+// Solo usa caché como respaldo cuando NO hay conexión (offline).
 // ============================================================
 
-const CACHE_NAME = 'sistema-discoteca-v1';
+const CACHE_NAME = 'sistema-discoteca-v7';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -29,181 +30,106 @@ const STATIC_ASSETS = [
   '/manifest.json'
 ];
 
-const FIREBASE_ASSETS = [
-  'https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js',
-  'https://www.gstatic.com/firebasejs/10.9.0/firebase-database-compat.js',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap'
-];
-
-// Install - cache static assets
+// Install — pre-cache static assets para soporte offline
 self.addEventListener('install', event => {
+  console.log('[SW] Instalando versión:', CACHE_NAME);
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[SW] Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .then(() => self.skipWaiting())
+      .then(cache => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting()) // Activar inmediatamente sin esperar
   );
 });
 
-// Activate - clean old caches
+// Activate — borrar TODOS los cachés antiguos y tomar control inmediato
 self.addEventListener('activate', event => {
+  console.log('[SW] Activando versión:', CACHE_NAME);
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
         keys.filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
+          .map(key => {
+            console.log('[SW] Borrando caché antigua:', key);
+            return caches.delete(key);
+          })
       ))
-      .then(() => self.clients.claim())
+      .then(() => self.clients.claim()) // Tomar control de todas las pestañas
   );
 });
 
-// Fetch - network first for API, cache first for static
+// Fetch — NETWORK FIRST para TODO (excepto Firebase)
+// Siempre intenta descargar la versión nueva del servidor.
+// Si falla (sin internet), devuelve la copia cacheada.
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
-  
-  // Skip non-GET requests
-  if (event.request.method !== 'GET') return;
-  
-  // Skip Firebase realtime connections
-  if (url.hostname.includes('firebaseio.com') || url.hostname.includes('googleapis.com')) {
-    return;
-  }
-  
-  // API requests - network first
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(networkFirst(event.request));
-    return;
-  }
-  
-  // Static assets - cache first
-  event.respondWith(cacheFirst(event.request));
-});
 
-async function cacheFirst(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-  
-  try {
-    const response = await fetch(request);
-    if (response.ok) {
-      const cache = await caches.open(CACHE_NAME);
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch (err) {
-    // Return offline page for navigation requests
-    if (request.mode === 'navigate') {
-      return caches.match('/index.html');
-    }
-    throw err;
-  }
-}
+  // Ignorar peticiones que no sean GET
+  if (event.request.method !== 'GET') return;
+
+  // Ignorar conexiones Firebase Realtime DB (WebSocket)
+  if (url.hostname.includes('firebaseio.com')) return;
+
+  // Ignorar Google APIs (fonts, Firebase SDK)
+  if (url.hostname.includes('googleapis.com') || url.hostname.includes('gstatic.com')) return;
+
+  // Para TODOS los demás recursos: Network First
+  event.respondWith(networkFirst(event.request));
+});
 
 async function networkFirst(request) {
   try {
+    // 1. Intentar descargar del servidor (la versión MÁS NUEVA)
     const response = await fetch(request);
     if (response.ok) {
+      // Guardar copia en caché para uso offline futuro
       const cache = await caches.open(CACHE_NAME);
       cache.put(request, response.clone());
     }
     return response;
   } catch (err) {
+    // 2. Sin internet → devolver la copia cacheada
     const cached = await caches.match(request);
-    if (cached) return cached;
-    
-    // Return offline response for API
-    return new Response(JSON.stringify({ 
-      error: 'offline', 
-      message: 'Sin conexión. Los datos se sincronizarán al reconectar.' 
-    }), {
-      status: 503,
-      headers: { 'Content-Type': 'application/json' }
+    if (cached) {
+      console.log('[SW] Offline, sirviendo desde caché:', request.url);
+      return cached;
+    }
+
+    // 3. Navegación sin caché → devolver index.html cacheado
+    if (request.mode === 'navigate') {
+      const fallback = await caches.match('/index.html');
+      if (fallback) return fallback;
+    }
+
+    // 4. Sin nada → error offline
+    return new Response('Sin conexión', { status: 503, statusText: 'Offline' });
+  }
+}
+
+// Message handler — forzar actualización desde la app
+self.addEventListener('message', event => {
+  if (event.data === 'skipWaiting') {
+    self.skipWaiting();
+  }
+  if (event.data === 'forceUpdate') {
+    // Limpiar todo el caché y reclamar clientes
+    caches.keys().then(keys =>
+      Promise.all(keys.map(key => caches.delete(key)))
+    ).then(() => {
+      self.clients.claim();
+      // Notificar a todos los clientes que recarguen
+      self.clients.matchAll().then(clients => {
+        clients.forEach(client => client.postMessage({ type: 'CACHE_CLEARED' }));
+      });
     });
   }
-}
-
-// Background sync for offline actions
-self.addEventListener('sync', event => {
-  if (event.tag === 'sync-pedidos') {
-    event.waitUntil(syncPedidos());
-  } else if (event.tag === 'sync-ventas') {
-    event.waitUntil(syncVentas());
-  }
 });
-
-async function syncPedidos() {
-  const db = await openIndexedDB();
-  const pending = await db.getAll('pendingPedidos');
-  
-  for (const pedido of pending) {
-    try {
-      const response = await fetch('/api/pedidos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(pedido)
-      });
-      
-      if (response.ok) {
-        await db.delete('pendingPedidos', pedido.id);
-      }
-    } catch (err) {
-      console.log('[SW] Sync failed for pedido:', pedido.id);
-    }
-  }
-}
-
-async function syncVentas() {
-  const db = await openIndexedDB();
-  const pending = await db.getAll('pendingVentas');
-  
-  for (const venta of pending) {
-    try {
-      const response = await fetch('/api/ventas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(venta)
-      });
-      
-      if (response.ok) {
-        await db.delete('pendingVentas', venta.id);
-      }
-    } catch (err) {
-      console.log('[SW] Sync failed for venta:', venta.id);
-    }
-  }
-}
-
-// IndexedDB helper
-function openIndexedDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open('SistemaDiscotecaOffline', 1);
-    
-    request.onupgradeneeded = event => {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains('pendingPedidos')) {
-        db.createObjectStore('pendingPedidos', { keyPath: 'id' });
-      }
-      if (!db.objectStoreNames.contains('pendingVentas')) {
-        db.createObjectStore('pendingVentas', { keyPath: 'id' });
-      }
-    };
-    
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-}
 
 // Push notifications
 self.addEventListener('push', event => {
   if (!event.data) return;
-  
+
   const data = event.data.json();
   const options = {
     body: data.mensaje || 'Nueva notificación',
-    icon: '/manifest.json',
-    badge: '/manifest.json',
     vibrate: [200, 100, 200],
     tag: data.tipo || 'notification',
     data: {
@@ -215,7 +141,7 @@ self.addEventListener('push', event => {
       { action: 'dismiss', title: 'Cerrar' }
     ]
   };
-  
+
   event.waitUntil(
     self.registration.showNotification(data.titulo || 'Sistema Discoteca', options)
   );
@@ -223,7 +149,7 @@ self.addEventListener('push', event => {
 
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-  
+
   if (event.action === 'view' || !event.action) {
     event.waitUntil(
       clients.matchAll({ type: 'window' })
@@ -239,34 +165,4 @@ self.addEventListener('notificationclick', event => {
   }
 });
 
-// Message from main thread
-self.addEventListener('message', event => {
-  if (event.data === 'skipWaiting') {
-    self.skipWaiting();
-  }
-  
-  if (event.data?.type === 'cache-pedido') {
-    cachePedidoOffline(event.data.pedido);
-  }
-  
-  if (event.data?.type === 'cache-venta') {
-    cacheVentaOffline(event.data.venta);
-  }
-});
-
-async function cachePedidoOffline(pedido) {
-  const db = await openIndexedDB();
-  await db.put('pendingPedidos', { ...pedido, id: Date.now(), timestamp: Date.now() });
-  
-  // Register background sync
-  const registration = await self.registration.sync.register('sync-pedidos');
-}
-
-async function cacheVentaOffline(venta) {
-  const db = await openIndexedDB();
-  await db.put('pendingVentas', { ...venta, id: Date.now(), timestamp: Date.now() });
-  
-  const registration = await self.registration.sync.register('sync-ventas');
-}
-
-console.log('[SW] Service Worker loaded');
+console.log('[SW] Service Worker cargado — versión:', CACHE_NAME);
