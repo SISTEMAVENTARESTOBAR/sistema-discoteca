@@ -5,93 +5,6 @@
 
 let menuActiveCat = null;
 
-function subirQREmpresa(input) {
-  const file = input.files[0];
-  if (!file) return;
-  if (file.size > 500 * 1024) {
-    mostrarToast('Imagen muy grande', 'Máximo 500KB');
-    input.value = '';
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = e => {
-    const dataUrl = e.target.result;
-    // Guardar en Firebase para que TODOS los dispositivos lo vean
-    if (typeof db !== 'undefined') {
-      db.ref('config/qr_empresa').set(dataUrl).then(() => {
-        _actualizarQRPreview(dataUrl);
-        mostrarToast('QR guardado', 'El QR de pago se ha guardado correctamente. Todos los dispositivos lo verán.');
-        addLog('Subió QR de pago de la empresa');
-      }).catch(e => {
-        console.error('Error guardando QR:', e);
-        mostrarToast('Error', 'No se pudo guardar el QR. Intenta de nuevo.');
-      });
-    } else {
-      // Fallback local
-      localStorage.setItem('qr_empresa_img', dataUrl);
-      _actualizarQRPreview(dataUrl);
-      mostrarToast('QR guardado', 'El QR de pago se ha guardado localmente');
-      addLog('Subió QR de pago de la empresa');
-    }
-  };
-  reader.readAsDataURL(file);
-  input.value = '';
-}
-
-function eliminarQREmpresa() {
-  mostrarConfirm('Eliminar QR', '¿Eliminar el QR de pago de la empresa?', ok => {
-    if (ok) {
-      if (typeof db !== 'undefined') {
-        db.ref('config/qr_empresa').remove().then(() => {
-          _actualizarQRPreview(null);
-          mostrarToast('QR eliminado', 'El QR de pago ha sido eliminado de todos los dispositivos');
-          addLog('Eliminó QR de pago de la empresa');
-        }).catch(e => console.error('Error eliminando QR:', e));
-      } else {
-        localStorage.removeItem('qr_empresa_img');
-        _actualizarQRPreview(null);
-        mostrarToast('QR eliminado', 'El QR de pago ha sido eliminado');
-        addLog('Eliminó QR de pago de la empresa');
-      }
-    }
-  });
-}
-
-function _actualizarQRPreview(dataUrl) {
-  const preview = document.getElementById('qr-empresa-preview-mini');
-  if (!preview) return;
-  if (dataUrl) {
-    preview.innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;">`;
-  } else {
-    preview.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
-  }
-}
-
-function loadQREmpresaPreview() {
-  // Intentar cargar desde Firebase primero
-  if (typeof db !== 'undefined') {
-    db.ref('config/qr_empresa').once('value', snap => {
-      const qrImg = snap.val();
-      if (qrImg) {
-        _actualizarQRPreview(qrImg);
-      } else {
-        // Migrar si existe en localStorage (backward compatibility)
-        const localQR = localStorage.getItem('qr_empresa_img');
-        if (localQR) {
-          db.ref('config/qr_empresa').set(localQR).then(() => {
-            localStorage.removeItem('qr_empresa_img');
-            _actualizarQRPreview(localQR);
-            console.log('[QR] Migrado de localStorage a Firebase');
-          });
-        }
-      }
-    });
-  } else {
-    const qrImg = localStorage.getItem('qr_empresa_img');
-    if (qrImg) _actualizarQRPreview(qrImg);
-  }
-}
-
 function renderMenu() {
   const cats = [...new Set(DB.productos.map(p => p.categoria))];
   if (cats.length === 0) {
@@ -118,8 +31,6 @@ function renderMenu() {
         <button class="btn btn-outline btn-sm" onclick="toggleProducto(${p.id})">${p.activo ? 'Desactivar' : 'Activar'}</button>
       </div>
     </div>`).join('');
-  
-  loadQREmpresaPreview();
 }
 
 function setMenuCat(cat) {

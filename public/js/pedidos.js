@@ -13,32 +13,7 @@ let activeCategory = null;
 let isCajaMode = false;
 let cajaModeCliente = null;
 
-function mostrarQR_EMPRESA() {
-  // Intentar cargar desde Firebase (compartido entre todos los dispositivos)
-  if (typeof db !== 'undefined') {
-    db.ref('config/qr_empresa').once('value', snap => {
-      const qrImg = snap.val();
-      if (qrImg) {
-        expandirImagen(qrImg);
-      } else {
-        // Fallback a localStorage
-        const localQR = localStorage.getItem('qr_empresa_img');
-        if (localQR) {
-          expandirImagen(localQR);
-        } else {
-          mostrarToast('QR no disponible', 'El administrador aún no ha configurado el QR de pago. Solicítale que lo suba desde Gestión del Menú.');
-        }
-      }
-    });
-  } else {
-    const qrImg = localStorage.getItem('qr_empresa_img');
-    if (qrImg) {
-      expandirImagen(qrImg);
-    } else {
-      mostrarToast('QR no disponible', 'El administrador aún no ha configurado el QR de pago. Solicítale que lo suba desde Gestión del Menú.');
-    }
-  }
-}
+
 
 function abrirCamara(inputId) {
   const input = document.getElementById(inputId);
