@@ -166,44 +166,77 @@ function calcMixto() {
   updateConfirmBtn();
 }
 
-const MAX_IMG_SIZE = 500 * 1024;
+function compressImage(file, maxDimension = 1200, quality = 0.8) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
 
-function validarImgSize(file) {
-  if (file.size > MAX_IMG_SIZE) {
-    mostrarToast('Imagen muy grande', `Máximo ${MAX_IMG_SIZE / 1024}KB. La imagen actual pesa ${(file.size / 1024).toFixed(0)}KB.`);
-    return false;
-  }
-  return true;
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(compressedDataUrl);
+      };
+      img.onerror = () => reject(new Error('Error al cargar la imagen'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('Error al leer el archivo'));
+    reader.readAsDataURL(file);
+  });
 }
 
-function handleQRUpload(input) {
+async function handleQRUpload(input) {
   const file = input.files[0];
   if (!file) return;
-  if (!validarImgSize(file)) { input.value = ''; return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    qrFileData = e.target.result;
+
+  try {
+    const compressedDataUrl = await compressImage(file, 1200, 0.8);
+    qrFileData = compressedDataUrl;
     document.getElementById('qr-preview-img').src = qrFileData;
     document.getElementById('qr-preview').style.display = 'block';
     document.getElementById('qr-upload-area').classList.add('has-file');
     updateConfirmBtn();
-  };
-  reader.readAsDataURL(file);
+  } catch (err) {
+    console.error('[Upload QR] Error comprimiendo imagen:', err);
+    mostrarToast('Error en imagen', 'No se pudo procesar la foto. Intenta con otra.');
+    input.value = '';
+  }
 }
 
-function handleMixtoUpload(input) {
+async function handleMixtoUpload(input) {
   const file = input.files[0];
   if (!file) return;
-  if (!validarImgSize(file)) { input.value = ''; return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    mixtoFileData = e.target.result;
+
+  try {
+    const compressedDataUrl = await compressImage(file, 1200, 0.8);
+    mixtoFileData = compressedDataUrl;
     document.getElementById('mixto-preview-img').src = mixtoFileData;
     document.getElementById('mixto-preview').style.display = 'block';
     document.getElementById('mixto-upload-area').classList.add('has-file');
     updateConfirmBtn();
-  };
-  reader.readAsDataURL(file);
+  } catch (err) {
+    console.error('[Upload Mixto] Error comprimiendo imagen:', err);
+    mostrarToast('Error en imagen', 'No se pudo procesar la foto. Intenta con otra.');
+    input.value = '';
+  }
 }
 
 function updateConfirmBtn() {
