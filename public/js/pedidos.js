@@ -14,11 +14,29 @@ let isCajaMode = false;
 let cajaModeCliente = null;
 
 function mostrarQR_EMPRESA() {
-  const qrImg = localStorage.getItem('qr_empresa_img');
-  if (qrImg) {
-    expandirImagen(qrImg);
+  // Intentar cargar desde Firebase (compartido entre todos los dispositivos)
+  if (typeof db !== 'undefined') {
+    db.ref('config/qr_empresa').once('value', snap => {
+      const qrImg = snap.val();
+      if (qrImg) {
+        expandirImagen(qrImg);
+      } else {
+        // Fallback a localStorage
+        const localQR = localStorage.getItem('qr_empresa_img');
+        if (localQR) {
+          expandirImagen(localQR);
+        } else {
+          mostrarToast('QR no disponible', 'El administrador aún no ha configurado el QR de pago. Solicítale que lo suba desde Gestión del Menú.');
+        }
+      }
+    });
   } else {
-    mostrarToast('QR no disponible', 'El administrador aún no ha configurado el QR de pago. Solicítale que lo suba desde Configuración.');
+    const qrImg = localStorage.getItem('qr_empresa_img');
+    if (qrImg) {
+      expandirImagen(qrImg);
+    } else {
+      mostrarToast('QR no disponible', 'El administrador aún no ha configurado el QR de pago. Solicítale que lo suba desde Gestión del Menú.');
+    }
   }
 }
 
@@ -26,6 +44,14 @@ function abrirCamara(inputId) {
   const input = document.getElementById(inputId);
   if (input) {
     input.setAttribute('capture', 'environment');
+    input.click();
+  }
+}
+
+function abrirGaleria(inputId) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    input.removeAttribute('capture');
     input.click();
   }
 }
@@ -49,7 +75,7 @@ function openPedidoModal(mesaId) {
   selectedPayMethod = null;
   qrFileData = null;
   mixtoFileData = null;
-  document.getElementById('modal-pedido-title').textContent = `Pedido — Mesa ${selectedMesa.numero}`;
+  document.getElementById('modal-pedido-title').textContent = isCajaMode ? 'Nuevo Pedido — Mostrador' : `Pedido — Mesa ${selectedMesa.numero}`;
   document.getElementById('pedido-cliente').value = '';
   document.getElementById('pedido-nota').value = '';
   document.getElementById('monto-recibido').value = '';
