@@ -132,7 +132,7 @@ function renderPage(pageId) {
   if (pageId === 'page-ventas') renderVentas();
   if (pageId === 'page-anulaciones') renderAnulaciones();
   if (pageId === 'page-log') renderLog();
-  if (pageId === 'page-cierre') renderTurnosHistorial();
+  if (pageId === 'page-cierre') renderCierreHistorial();
   if (pageId === 'page-usuarios') renderUsuarios();
   if (pageId === 'page-menu') renderMenu();
   if (pageId === 'page-mesas-garzon') renderMesasGarzon();

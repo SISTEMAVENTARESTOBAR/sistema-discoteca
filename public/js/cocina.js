@@ -17,14 +17,14 @@ function renderCocina() {
   }
   container.innerHTML = pedidos.map(p => {
     const comidas = p.productos.filter(_productoEsComida);
-    return `<div class="card" style="margin-bottom:12px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <strong>Mesa ${p.mesaNum} ${p.clienteNombre ? `<span style="color:var(--accent);font-size:13px;margin-left:4px;">${icon('user', 12)} ${p.clienteNombre}</span>` : ''} — ${p.garzonNombre}</strong>
+    return `<div class="card" style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <strong style="font-size:16px;">Mesa ${p.mesaNum} ${p.clienteNombre ? `<span style="color:var(--accent);font-size:14px;margin-left:4px;">${icon('user', 12)} ${p.clienteNombre}</span>` : ''} — ${p.garzonNombre}</strong>
         <span style="font-size:12px;color:var(--green);">${icon('checkCircle', 12, 'icon-success')} Pago confirmado</span>
       </div>
-      <div style="margin-bottom:12px;">${comidas.map(c => `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;">${c.qty}x ${c.nombre}</div>`).join('')}</div>
-      ${p.nota ? `<div style="font-size:11px;color:var(--text3);margin-bottom:10px;">${icon('note', 11)} ${p.nota}</div>` : ''}
-      <button class="btn btn-success" onclick="cocinaListo(${p.id})">${icon('check', 13)} Listo — Entregado al garzón</button>
+      <div style="margin-bottom:14px;">${comidas.map(c => `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:16px;font-weight:500;">${c.qty}x <strong>${c.nombre}</strong></div>`).join('')}</div>
+      ${p.nota ? `<div style="font-size:13px;color:var(--text3);margin-bottom:12px;padding:8px 10px;background:var(--bg2);border-radius:8px;">${icon('note', 13)} ${p.nota}</div>` : ''}
+      <button class="btn btn-success" style="width:100%;padding:14px;font-size:15px;" onclick="cocinaListo(${p.id})">${icon('check', 15)} Listo — Entregado al garzón</button>
     </div>`;
   }).join('');
 }
@@ -64,11 +64,11 @@ function renderCocinaHistorial() {
     const comidas = p.productos.filter(_productoEsComida);
     return `<div class="card" style="margin-bottom:12px; opacity:0.8;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <strong>Mesa ${p.mesaNum} ${p.clienteNombre ? `<span style="color:var(--accent);font-size:13px;margin-left:4px;">${icon('user', 12)} ${p.clienteNombre}</span>` : ''} — ${p.garzonNombre}</strong>
+        <strong style="font-size:15px;">Mesa ${p.mesaNum} ${p.clienteNombre ? `<span style="color:var(--accent);font-size:13px;margin-left:4px;">${icon('user', 12)} ${p.clienteNombre}</span>` : ''} — ${p.garzonNombre}</strong>
         <span style="font-size:12px;color:var(--text2);">${p.fecha} ${p.horaCocina || p.horacocina || ''}</span>
       </div>
-      <div style="margin-bottom:12px;">${comidas.map(c => `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;">${c.qty}x ${c.nombre}</div>`).join('')}</div>
-      <div style="font-size:12px;color:var(--green);">${icon('checkCircle', 12, 'icon-success')} Preparado por ${p.cocineroNombre || p.cocineraNombre || ''}</div>
+      <div style="margin-bottom:12px;">${comidas.map(c => `<div style="padding:7px 0;border-bottom:1px solid var(--border);font-size:15px;font-weight:500;">${c.qty}x <strong>${c.nombre}</strong></div>`).join('')}</div>
+      <div style="font-size:13px;color:var(--green);">${icon('checkCircle', 12, 'icon-success')} Preparado por ${p.cocineroNombre || p.cocineraNombre || ''}</div>
     </div>`;
   }).join('');
 }

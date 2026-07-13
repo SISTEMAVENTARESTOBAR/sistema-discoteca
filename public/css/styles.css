@@ -385,7 +385,9 @@ tbody tr:hover td { background: var(--bg2); }
 .badge-paid { background: rgba(66,184,255,0.15); color: var(--blue); }
 .badge-cancelled { background: rgba(255,77,106,0.15); color: var(--red); }
 .badge-cash { background: rgba(46,204,138,0.15); color: var(--green); }
+.badge-efectivo { background: rgba(46,204,138,0.15); color: var(--green); }
 .badge-qr { background: rgba(66,184,255,0.15); color: var(--blue); }
+.badge-mixto { background: rgba(245,200,66,0.15); color: var(--yellow); }
 .badge-mixed { background: rgba(245,200,66,0.15); color: var(--yellow); }
 
 /* ===================== ALERTS ===================== */
@@ -538,7 +540,7 @@ tbody tr:hover td { background: var(--bg2); }
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 12px 14px;
   cursor: pointer;
   transition: all 0.15s;
   display: flex;
@@ -546,33 +548,33 @@ tbody tr:hover td { background: var(--bg2); }
   justify-content: space-between;
 }
 .product-item:hover { border-color: var(--accent); background: rgba(124,92,252,0.05); }
-.product-item .pname { font-size: 12px; font-weight: 500; }
-.product-item .pprice { font-size: 11px; color: var(--accent); font-weight: 700; }
-.cart-items { margin-bottom: 12px; max-height: 160px; overflow-y: auto; }
+.product-item .pname { font-size: 14px; font-weight: 500; }
+.product-item .pprice { font-size: 13px; color: var(--accent); font-weight: 700; }
+.cart-items { margin-bottom: 12px; max-height: 180px; overflow-y: auto; }
 .cart-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
+  gap: 10px;
+  padding: 10px 12px;
   background: var(--bg2);
   border-radius: 8px;
   margin-bottom: 6px;
 }
-.cart-item-name { flex: 1; font-size: 12px; }
-.cart-qty { display: flex; align-items: center; gap: 6px; }
+.cart-item-name { flex: 1; font-size: 14px; }
+.cart-qty { display: flex; align-items: center; gap: 8px; }
 .qty-btn {
-  width: 24px; height: 24px;
+  width: 28px; height: 28px;
   border-radius: 6px;
   background: var(--bg3);
   border: none;
   color: var(--text);
   cursor: pointer;
-  font-size: 14px;
+  font-size: 16px;
   display: flex; align-items: center; justify-content: center;
 }
 .qty-btn:hover { background: var(--accent); }
-.qty-num { font-size: 13px; font-weight: 600; min-width: 20px; text-align: center; }
-.cart-item-price { font-size: 12px; color: var(--accent); font-weight: 600; }
+.qty-num { font-size: 14px; font-weight: 600; min-width: 24px; text-align: center; }
+.cart-item-price { font-size: 13px; color: var(--accent); font-weight: 600; }
 .cart-total {
   border-top: 1px solid var(--border);
   padding-top: 10px;
@@ -581,8 +583,8 @@ tbody tr:hover td { background: var(--bg2); }
   align-items: center;
   margin-bottom: 14px;
 }
-.cart-total span { font-size: 13px; color: var(--text2); }
-.cart-total strong { font-size: 22px; font-family: 'Syne', sans-serif; letter-spacing: -0.5px; }
+.cart-total span { font-size: 14px; color: var(--text2); }
+.cart-total strong { font-size: 24px; font-family: 'Syne', sans-serif; letter-spacing: -0.5px; }
 
 /* ===================== TABS ===================== */
 .tabs { display: flex; gap: 4px; background: var(--bg2); padding: 4px; border-radius: 12px; margin-bottom: 20px; }
@@ -921,12 +923,29 @@ tbody tr:hover td { background: var(--bg2); }
   .grid-3 { grid-template-columns: 1fr !important; }
   .mesas-grid { grid-template-columns: repeat(2, 1fr) !important; }
   .payment-methods { grid-template-columns: repeat(3,1fr); gap: 6px; }
-  .pay-method { padding: 10px 4px; }
-  .pay-method .pay-icon { font-size: 18px; }
-  .pay-method .pay-label { font-size: 10px; }
+  .pay-method { padding: 12px 6px; }
+  .pay-method .pay-icon { font-size: 20px; }
+  .pay-method .pay-label { font-size: 11px; }
   .stat-value { font-size: 18px !important; }
   .page-header h2 { font-size: 18px; }
   .modal-header h3 { font-size: 16px; }
+  .product-item { padding: 14px 16px; }
+  .product-item .pname { font-size: 15px; }
+  .product-item .pprice { font-size: 14px; }
+  .cart-item { padding: 12px 14px; }
+  .cart-item-name { font-size: 15px; }
+  .qty-btn { width: 32px; height: 32px; font-size: 18px; }
+  .qty-num { font-size: 16px; }
+  .cart-item-price { font-size: 14px; }
+  .cart-total strong { font-size: 26px; }
+  .cart-items { max-height: 200px; }
+  .mesa-num { font-size: 22px; }
+  .card { padding: 16px; }
+  .card-sm { padding: 14px; }
+  .modal { margin: 10px !important; max-width: calc(100% - 20px) !important; }
+  .modal-body { padding: 16px; }
+  .modal-header { padding: 16px; }
+  .modal-footer { padding: 12px 16px; }
 }
 
 /* ===================== CIERRE CARD ===================== */

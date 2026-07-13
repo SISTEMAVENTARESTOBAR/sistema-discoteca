@@ -56,23 +56,22 @@ function renderMesasGarzon() {
       const estadoColor = { pendiente: 'var(--yellow)', caja_confirmada: 'var(--orange)', listo: 'var(--green)', entregado: 'var(--blue)' }[p.estado] || 'var(--text2)';
       const anulacionesHoy2 = DB.anulaciones.filter(a => a.garzonId === currentUser.id && a.fecha === hoy).length;
       const puedeAnular = anulacionesHoy2 < 3 && p.estado === 'pendiente';
-      return `<div class="card card-sm" style="margin-bottom:10px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <strong style="font-size:14px;">Mesa ${p.mesaNum} ${p.clienteNombre ? `<span style="color:var(--accent);font-size:13px;margin-left:4px;">${icon('user', 12)} ${p.clienteNombre}</span>` : ''}</strong>
-          <span style="font-size:12px;color:${estadoColor};font-weight:500;">${estadoLabel}</span>
+      return `<div class="card card-sm" style="margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <strong style="font-size:16px;">Mesa ${p.mesaNum} ${p.clienteNombre ? `<span style="color:var(--accent);font-size:14px;margin-left:4px;">${icon('user', 12)} ${p.clienteNombre}</span>` : ''}</strong>
+          <span style="font-size:13px;color:${estadoColor};font-weight:600;">${estadoLabel}</span>
         </div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">${p.productos.map(x => `${x.qty}x ${x.nombre}`).join(', ')}</div>
-        ${p.nota ? `<div style="font-size:11px;color:var(--text3);margin-bottom:8px;">${icon('note', 11)} ${p.nota}</div>` : ''}
+        <div style="font-size:14px;color:var(--text2);margin-bottom:10px;">${p.productos.map(x => `<strong>${x.qty}x</strong> ${x.nombre}`).join(' &middot; ')}</div>
+        ${p.nota ? `<div style="font-size:12px;color:var(--text3);margin-bottom:10px;padding:6px 10px;background:var(--bg2);border-radius:8px;">${icon('note', 12)} ${p.nota}</div>` : ''}
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <strong style="font-family:'Syne',sans-serif;">Bs. ${p.total}</strong>
+          <strong style="font-family:'Syne',sans-serif;font-size:16px;">Bs. ${p.total}</strong>
           <div style="display:flex;gap:6px;">
-            ${p.estado === 'listo' ? `<button class="btn btn-success btn-sm" onclick="marcarEntregadoMesa(${p.id})">${icon('check', 13)} Entregado a mesa</button>` : ''}
-            ${puedeAnular ? `<button class="btn btn-danger btn-sm" onclick="initAnular(${p.id})">Anular</button>` : ''}
+            ${p.estado === 'listo' ? `<button class="btn btn-success btn-sm" style="font-size:13px;padding:10px 14px;" onclick="marcarEntregadoMesa(${p.id})">${icon('check', 14)} Entregado a mesa</button>` : ''}
+            ${puedeAnular ? `<button class="btn btn-danger btn-sm" style="font-size:13px;padding:10px 14px;" onclick="initAnular(${p.id})">Anular</button>` : ''}
           </div>
         </div>
       </div>`;
     }).join('');
-  }
   }
 
   // Pedidos disponibles para recoger en caja (sin garzón asignado)
@@ -85,21 +84,21 @@ function renderMesasGarzon() {
       <h3 style="font-size:15px;margin:16px 0 12px;color:var(--accent);">${icon('bell', 14)} Pedidos para recoger en Caja</h3>
       ${pedidosCaja.map(p => `
         <div class="card card-sm" style="margin-bottom:10px;border-left:3px solid var(--accent);">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-            <strong style="font-size:14px;">${p.clienteNombre ? `<span style="color:var(--accent);margin-right:8px;">${icon('user', 12)} ${p.clienteNombre}</span>` : ''}Pedido #${String(p.id).slice(-5)}</strong>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <strong style="font-size:15px;">${p.clienteNombre ? `<span style="color:var(--accent);margin-right:8px;">${icon('user', 12)} ${p.clienteNombre}</span>` : ''}Pedido #${String(p.id).slice(-5)}</strong>
             <span style="font-size:12px;color:var(--text3);">${p.fecha} ${p.horaCreacion}</span>
           </div>
-          <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">${p.productos.map(x => `${x.qty}x ${x.nombre}`).join(', ')}</div>
-          ${p.nota ? `<div style="font-size:11px;color:var(--text3);margin-bottom:8px;">${icon('note', 11)} ${p.nota}</div>` : ''}
+          <div style="font-size:14px;color:var(--text2);margin-bottom:10px;">${p.productos.map(x => `<strong>${x.qty}x</strong> ${x.nombre}`).join(' &middot; ')}</div>
+          ${p.nota ? `<div style="font-size:12px;color:var(--text3);margin-bottom:10px;padding:6px 10px;background:var(--bg2);border-radius:8px;">${icon('note', 12)} ${p.nota}</div>` : ''}
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <strong style="font-family:'Syne',sans-serif;">Bs. ${p.total}</strong>
-            <button class="btn btn-primary btn-sm" onclick="reclamarPedidoCaja(${p.id})">${icon('user', 13)} Recoger pedido</button>
+            <strong style="font-family:'Syne',sans-serif;font-size:16px;">Bs. ${p.total}</strong>
+            <button class="btn btn-primary btn-sm" style="font-size:13px;padding:10px 14px;" onclick="reclamarPedidoCaja(${p.id})">${icon('user', 13)} Recoger pedido</button>
           </div>
         </div>
       `).join('')}
     `;
   }
-
+}
 function clickMesa(mesaId) {
   openPedidoModal(mesaId);
 }
@@ -140,13 +139,13 @@ function renderGarzonHistorial() {
   }
   hist.innerHTML = misEntregados.reverse().map(p => `
     <div class="card card-sm" style="margin-bottom:10px; opacity:0.8;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <strong style="font-size:14px;">Mesa ${p.mesaNum} ${p.clienteNombre ? `<span style="color:var(--accent);font-size:13px;margin-left:4px;">${icon('user', 12)} ${p.clienteNombre}</span>` : ''}</strong>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <strong style="font-size:15px;">Mesa ${p.mesaNum} ${p.clienteNombre ? `<span style="color:var(--accent);font-size:13px;margin-left:4px;">${icon('user', 12)} ${p.clienteNombre}</span>` : ''}</strong>
         <span style="font-size:12px;color:var(--green);">${icon('checkCircle', 12, 'icon-success')} Entregado a mesa</span>
       </div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">${p.productos.map(x => `${x.qty}x ${x.nombre}`).join(', ')}</div>
+      <div style="font-size:14px;color:var(--text2);margin-bottom:10px;">${p.productos.map(x => `<strong>${x.qty}x</strong> ${x.nombre}`).join(' &middot; ')}</div>
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <strong style="font-family:'Syne',sans-serif;">Bs. ${p.total}</strong>
+        <strong style="font-family:'Syne',sans-serif;font-size:15px;">Bs. ${p.total}</strong>
         <span class="badge badge-${p.metodo}">${metodoLabel(p.metodo)}</span>
       </div>
     </div>

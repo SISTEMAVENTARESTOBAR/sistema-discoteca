@@ -95,7 +95,7 @@ db.ref('turnos').on('value', snap => {
   const abierto = DB.turnos.find(t => t.estado === 'abierto');
   DB.currentTurnoId = abierto ? abierto.id : null;
   if (document.getElementById('page-caja')?.classList.contains('active')) renderCaja();
-  if (document.getElementById('page-cierre')?.classList.contains('active')) renderCierreHistorial();
+  if (document.getElementById('page-caja-historial')?.classList.contains('active')) renderCajaHistorial();
 });
 
 // Helper for initial population if DB is empty

@@ -5,6 +5,51 @@
 
 let menuActiveCat = null;
 
+function subirQREmpresa(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 500 * 1024) {
+    mostrarToast('Imagen muy grande', 'Máximo 500KB');
+    input.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    localStorage.setItem('qr_empresa_img', dataUrl);
+    const preview = document.getElementById('qr-empresa-preview-mini');
+    if (preview) {
+      preview.innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;">`;
+    }
+    mostrarToast('QR guardado', 'El QR de pago se ha guardado correctamente');
+    addLog('Subió QR de pago de la empresa');
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+function eliminarQREmpresa() {
+  mostrarConfirm('Eliminar QR', '¿Eliminar el QR de pago de la empresa?', ok => {
+    if (ok) {
+      localStorage.removeItem('qr_empresa_img');
+      const preview = document.getElementById('qr-empresa-preview-mini');
+      if (preview) {
+        preview.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
+      }
+      mostrarToast('QR eliminado', 'El QR de pago ha sido eliminado');
+      addLog('Eliminó QR de pago de la empresa');
+    }
+  });
+}
+
+function loadQREmpresaPreview() {
+  const qrImg = localStorage.getItem('qr_empresa_img');
+  const preview = document.getElementById('qr-empresa-preview-mini');
+  if (qrImg && preview) {
+    preview.innerHTML = `<img src="${qrImg}" style="width:100%;height:100%;object-fit:cover;">`;
+  }
+}
+
 function renderMenu() {
   const cats = [...new Set(DB.productos.map(p => p.categoria))];
   if (cats.length === 0) {
@@ -31,6 +76,8 @@ function renderMenu() {
         <button class="btn btn-outline btn-sm" onclick="toggleProducto(${p.id})">${p.activo ? 'Desactivar' : 'Activar'}</button>
       </div>
     </div>`).join('');
+  
+  loadQREmpresaPreview();
 }
 
 function setMenuCat(cat) {

@@ -5,6 +5,17 @@
 
 let confirmarCajaVentaId = null;
 
+function expandirImagen(src) {
+  document.getElementById('modal-imagen-img').src = src;
+  openModal('modal-imagen');
+}
+
+function openPedidoCaja() {
+  isCajaMode = true;
+  document.getElementById('modal-pedido-title').textContent = 'Nuevo Pedido — Mostrador';
+  openPedidoModal(null);
+}
+
 // ============================================================
 // TURNOS (Cierre de caja por turnos)
 // ============================================================
@@ -218,8 +229,8 @@ function renderTurnosHistorial() {
   }
   
   container.innerHTML = turnosCerrados.map(t => `
-    <div class="cierre-accordion" id="turno-acc-${t.id}">
-      <div class="cierre-header" onclick="toggleCierreAccordion('turno-acc-${t.id}')">
+    <div class="cierre-accordion" id="cierre-acc-${t.id}">
+      <div class="cierre-header" onclick="toggleCierreAccordion('${t.id}')">
         <span style="flex-shrink:0;">${icon('lock', 14, 'icon-muted')}</span>
         <span class="cierre-date">${t.fecha} ${t.horaApertura} - ${t.horaCierre}</span>
         <div class="cierre-summary">
@@ -292,7 +303,7 @@ function renderCaja() {
           </div>
           <span class="badge badge-pending">Pendiente</span>
         </div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">${p.productos.map(x => `${x.qty}x ${x.nombre}`).join(', ')}</div>
+        <div style="font-size:14px;color:var(--text2);margin-bottom:10px;">${p.productos.map(x => `<strong>${x.qty}x</strong> ${x.nombre}`).join(' &middot; ')}</div>
         ${p.nota ? `<div style="font-size:11px;color:var(--text3);margin-bottom:8px;">${icon('note', 11)} ${p.nota}</div>` : ''}
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:10px;">
           <span style="color:var(--text2);">Total</span>
@@ -304,7 +315,7 @@ function renderCaja() {
           ${p.qr ? `<span style="margin-left:8px;color:var(--text2);">QR: Bs. ${p.qr}</span>` : ''}
           ${p.cambio > 0 ? `<span style="margin-left:8px;color:var(--green);">Cambio: Bs. ${p.cambio}</span>` : ''}
         </div>
-        ${p.comprobante ? `<div style="margin-bottom:10px;"><img src="${p.comprobante}" style="max-height:80px;border-radius:6px;border:1px solid var(--border);"></div>` : ''}
+        ${p.comprobante ? `<div style="margin-bottom:10px;"><img src="${p.comprobante}" onclick="expandirImagen(this.src)" style="max-height:100px;border-radius:8px;border:1px solid var(--border);cursor:pointer;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"></div>` : ''}
         <div style="display:flex;gap:8px;">
           <button class="btn btn-outline" style="color:var(--red);border-color:var(--red);flex:1;" onclick="rechazarPedidoCaja(${p.id})">${icon('xCircle', 13)} Rechazar</button>
           ${puedeConfirmar

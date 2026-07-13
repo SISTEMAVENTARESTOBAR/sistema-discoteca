@@ -13,8 +13,26 @@ let activeCategory = null;
 let isCajaMode = false;
 let cajaModeCliente = null;
 
+function mostrarQR_EMPRESA() {
+  const qrImg = localStorage.getItem('qr_empresa_img');
+  if (qrImg) {
+    expandirImagen(qrImg);
+  } else {
+    mostrarToast('QR no disponible', 'El administrador aún no ha configurado el QR de pago. Solicítale que lo suba desde Configuración.');
+  }
+}
+
+function abrirCamara(inputId) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    input.setAttribute('capture', 'environment');
+    input.click();
+  }
+}
+
 function openPedidoModal(mesaId) {
   if (mesaId) {
+    isCajaMode = false;
     selectedMesa = DB.mesas.find(m => m.id === mesaId);
     if (!selectedMesa) {
       mostrarToast('Error', 'Esta mesa ya no existe o fue eliminada por un administrador.');
@@ -265,6 +283,7 @@ function confirmarPedido() {
 
     addLog(`Creó pedido en caja — ${clienteNombre || 'Cliente'} — Bs.${total} — ${metodoLabel(selectedPayMethod)}`);
 
+    isCajaMode = false;
     closeModal('modal-pedido');
     renderCaja();
     return;

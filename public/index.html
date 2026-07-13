@@ -443,6 +443,29 @@
       <div style="margin-bottom:16px;">
         <button class="btn btn-primary" style="width:auto;" onclick="openModal('modal-nuevo-producto')">+ Nuevo producto</button>
       </div>
+      <!-- QR DE LA EMPRESA -->
+      <div class="card" style="margin-bottom:20px;" id="qr-empresa-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div>
+            <h3 style="font-size:15px;">QR de Pago</h3>
+            <p style="font-size:12px;color:var(--text2);">Imagen que verán los clientes al escanear para pagar</p>
+          </div>
+          <div id="qr-empresa-preview-mini" style="width:56px;height:56px;border-radius:10px;border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--bg2);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline btn-sm" style="flex:1;" onclick="document.getElementById('qr-empresa-input').click()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            Subir QR
+          </button>
+          <button class="btn btn-outline btn-sm" style="flex:1;color:var(--red);border-color:var(--red);" onclick="eliminarQREmpresa()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:middle;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            Eliminar
+          </button>
+        </div>
+        <input type="file" id="qr-empresa-input" accept="image/*" style="display:none;" onchange="subirQREmpresa(this)">
+      </div>
       <div class="tabs" id="menu-tabs"></div>
       <div id="menu-productos-grid" class="grid-3"></div>
     </div>
@@ -531,12 +554,13 @@
       </div>
     </div>
 
+    <!-- ===== PÁGINA: HISTORIAL DE TURNOS (CAJERO) ===== -->
     <div class="page" id="page-caja-historial">
       <div class="page-header">
         <h2>Historial de Turnos</h2>
         <p>Cierres de turnos registrados</p>
       </div>
-      <div id="cierre-historial"></div>
+      <div id="historial-caja-list"></div>
     </div>
 
   </div>
@@ -613,10 +637,26 @@
       </div>
       <!-- PAGO QR -->
       <div id="pago-qr-fields" style="display:none;">
+        <div style="margin-bottom:12px;">
+          <button class="btn btn-outline" style="width:100%;padding:12px;font-size:14px;" onclick="mostrarQR_EMPRESA()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;vertical-align:middle;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+            Mostrar QR para el cliente
+          </button>
+        </div>
         <div class="upload-area" id="qr-upload-area" onclick="document.getElementById('qr-file').click()">
           <div class="upload-icon" id="qr-upload-icon"></div>
           <div class="upload-text"><strong>Subir comprobante QR</strong><br>Obligatorio para confirmar el cobro</div>
-          <input type="file" id="qr-file" accept="image/*" style="display:none;" onchange="handleQRUpload(this)">
+          <input type="file" id="qr-file" accept="image/*" capture="environment" style="display:none;" onchange="handleQRUpload(this)">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn btn-outline btn-sm" style="flex:1;font-size:12px;" onclick="document.getElementById('qr-file').click()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:middle;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            Galería
+          </button>
+          <button class="btn btn-outline btn-sm" style="flex:1;font-size:12px;" onclick="abrirCamara('qr-file')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:middle;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            Cámara
+          </button>
         </div>
         <div id="qr-preview" style="display:none;margin-top:10px;text-align:center;">
           <img id="qr-preview-img" style="max-height:120px;border-radius:8px;border:1px solid var(--border);">
@@ -625,6 +665,12 @@
       </div>
       <!-- PAGO MIXTO -->
       <div id="pago-mixto-fields" style="display:none;">
+        <div style="margin-bottom:12px;">
+          <button class="btn btn-outline" style="width:100%;padding:12px;font-size:14px;" onclick="mostrarQR_EMPRESA()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;vertical-align:middle;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+            Mostrar QR para el cliente
+          </button>
+        </div>
         <div class="grid-2" style="margin-bottom:10px;">
           <div class="form-group">
             <label>Efectivo (Bs.)</label>
@@ -642,7 +688,17 @@
         <div class="upload-area" id="mixto-upload-area" onclick="document.getElementById('mixto-file').click()">
           <div class="upload-icon" id="mixto-upload-icon"></div>
           <div class="upload-text"><strong>Comprobante QR</strong><br>Obligatorio</div>
-          <input type="file" id="mixto-file" accept="image/*" style="display:none;" onchange="handleMixtoUpload(this)">
+          <input type="file" id="mixto-file" accept="image/*" capture="environment" style="display:none;" onchange="handleMixtoUpload(this)">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn btn-outline btn-sm" style="flex:1;font-size:12px;" onclick="document.getElementById('mixto-file').click()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:middle;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            Galería
+          </button>
+          <button class="btn btn-outline btn-sm" style="flex:1;font-size:12px;" onclick="abrirCamara('mixto-file')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:middle;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            Cámara
+          </button>
         </div>
         <div id="mixto-preview" style="display:none;margin-top:10px;text-align:center;">
           <img id="mixto-preview-img" style="max-height:100px;border-radius:8px;border:1px solid var(--border);">
@@ -804,6 +860,13 @@
       <button class="btn btn-outline" id="btn-prompt-cancel">Cancelar</button>
       <button class="btn btn-primary" id="btn-prompt-ok">Aceptar</button>
     </div>
+  </div>
+</div>
+
+<!-- MODAL: IMAGEN EXPANDIDA -->
+<div class="modal-overlay" id="modal-imagen" onclick="closeModal('modal-imagen')" style="cursor:pointer;">
+  <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;">
+    <img id="modal-imagen-img" style="max-width:95%;max-height:90vh;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,0.6);object-fit:contain;">
   </div>
 </div>
 
