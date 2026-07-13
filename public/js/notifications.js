@@ -112,17 +112,60 @@ function updateSyncStatus(connected) {
   }
 }
 
-function forceSync() {
-  if (typeof db !== 'undefined') {
-    const text = document.getElementById('sync-text');
-    if (text) text.innerText = 'Actualizando...';
-    // Reconectar firebase
-    firebase.database().goOffline();
+// ============================================================
+// LIMPIEZA TOTAL DE CACHÉ — Comando del Administrador
+// Uso desde consola: limpiar()
+// Uso desde la app: tocar el botón de sincronización
+// ============================================================
+
+async function forceSync() {
+  const text = document.getElementById('sync-text');
+  const dot = document.getElementById('sync-dot');
+  
+  if (text) text.innerText = 'Limpiando...';
+  if (dot) dot.style.background = '#ff9800'; // naranja = procesando
+
+  try {
+    // 1. Borrar TODOS los cachés del Service Worker (archivos viejos)
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(key => caches.delete(key)));
+      console.log('[LIMPIAR] Cachés eliminados:', keys);
+    }
+
+    // 2. Desregistrar el Service Worker viejo
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const reg of registrations) {
+        await reg.unregister();
+        console.log('[LIMPIAR] SW desregistrado:', reg.scope);
+      }
+    }
+
+    // 3. Reconectar Firebase para datos frescos
+    if (typeof firebase !== 'undefined' && typeof db !== 'undefined') {
+      firebase.database().goOffline();
+      setTimeout(() => firebase.database().goOnline(), 300);
+    }
+
+    console.log('[LIMPIAR] ✅ Todo limpio. Recargando con versión nueva...');
+    
+    // 4. Recargar la página SIN caché (forzar descarga del servidor)
     setTimeout(() => {
-      firebase.database().goOnline();
+      window.location.reload(true);
     }, 500);
+
+  } catch (err) {
+    console.error('[LIMPIAR] Error:', err);
+    if (text) text.innerText = 'Error';
+    if (dot) dot.style.background = '#f44336';
+    // Recargar de todas formas
+    setTimeout(() => window.location.reload(true), 1000);
   }
 }
+
+// Comando rápido para la consola del navegador
+window.limpiar = forceSync;
 
 // --- Audio Preload & Unlock ---
 const audioGarzon = new Audio('audio/notification.wav');
